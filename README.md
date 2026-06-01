@@ -71,7 +71,7 @@ Dev/Prod dùng Postgre server ngoài Docker. Cập nhật trong mỗi `service/.
 ### 7.1 Local
 ```bash
 cd /home/hieu-pt/Documents/MediBook
-docker compose -f docker-compose.yml -f docker-compose.local.yml --env-file .env.local-stack up --build
+docker compose -f docker-compose.yml -f docker-compose.local.yml --env-file .env.local-stack up --build -d
 ```
 
 ### 7.2 Dev
