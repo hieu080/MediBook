@@ -7,11 +7,11 @@ WORKDIR /app
 COPY .mvn .mvn
 COPY mvnw .
 COPY pom.xml .
-RUN chmod +x mvnw && ./mvnw -q -DskipTests dependency:go-offline
+RUN mvn -q -DskipTests dependency:go-offline
 
 # Build app
 COPY src src
-RUN ./mvnw -q clean package -DskipTests
+RUN mvn -q clean package -DskipTests
 
 # Runtime image
 FROM eclipse-temurin:17-jre

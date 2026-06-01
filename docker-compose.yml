@@ -1,0 +1,73 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: medibook-redis
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: medibook-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  api-gateway:
+    build: ./api-gateway
+    env_file: ${API_GATEWAY_ENV_FILE:-./api-gateway/.env}
+    ports:
+      - "8080:8080"
+
+  identity-service:
+    build: ./identity-service
+    env_file: ${IDENTITY_ENV_FILE:-./identity-service/.env}
+    ports:
+      - "8081:8081"
+
+  patient-service:
+    build: ./patient-service
+    env_file: ${PATIENT_ENV_FILE:-./patient-service/.env}
+    ports:
+      - "8082:8082"
+
+  doctor-schedule-service:
+    build: ./doctor-schedule-service
+    env_file: ${DOCTOR_SCHEDULE_ENV_FILE:-./doctor-schedule-service/.env}
+    ports:
+      - "8083:8083"
+
+  appointment-service:
+    build: ./appointment-service
+    env_file: ${APPOINTMENT_ENV_FILE:-./appointment-service/.env}
+    ports:
+      - "8084:8084"
+
+  payment-service:
+    build: ./payment-service
+    env_file: ${PAYMENT_ENV_FILE:-./payment-service/.env}
+    ports:
+      - "8085:8085"
+
+  queue-service:
+    build: ./queue-service
+    env_file: ${QUEUE_ENV_FILE:-./queue-service/.env}
+    ports:
+      - "8086:8086"
+
+  notification-service:
+    build: ./notification-service
+    env_file: ${NOTIFICATION_ENV_FILE:-./notification-service/.env}
+    ports:
+      - "8087:8087"
+
+  reporting-service:
+    build: ./reporting-service
+    env_file: ${REPORTING_ENV_FILE:-./reporting-service/.env}
+    ports:
+      - "8088:8088"
+
+  audit-service:
+    build: ./audit-service
+    env_file: ${AUDIT_ENV_FILE:-./audit-service/.env}
+    ports:
+      - "8089:8089"

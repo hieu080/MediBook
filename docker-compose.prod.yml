@@ -1,0 +1,23 @@
+services:
+  # Prod environment uses external PostgreSQL server via .env.prod files.
+  # No postgres containers declared here.
+  api-gateway:
+    restart: unless-stopped
+  identity-service:
+    restart: unless-stopped
+  patient-service:
+    restart: unless-stopped
+  doctor-schedule-service:
+    restart: unless-stopped
+  appointment-service:
+    restart: unless-stopped
+  payment-service:
+    restart: unless-stopped
+  queue-service:
+    restart: unless-stopped
+  notification-service:
+    restart: unless-stopped
+  reporting-service:
+    restart: unless-stopped
+  audit-service:
+    restart: unless-stopped

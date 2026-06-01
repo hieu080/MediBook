@@ -3,3 +3,6 @@ spring:
     name: payment-service
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
+
+server:
+  port: 8085
