@@ -1,0 +1,155 @@
+services:
+  postgres-identity:
+    image: postgres:15
+    container_name: medibook-postgres-identity
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: medibook_identity_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg_identity_data:/var/lib/postgresql/data
+
+  postgres-patient:
+    image: postgres:15
+    container_name: medibook-postgres-patient
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: medibook_patient_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - pg_patient_data:/var/lib/postgresql/data
+
+  postgres-doctor-schedule:
+    image: postgres:15
+    container_name: medibook-postgres-doctor-schedule
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: medibook_doctor_schedule_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - pg_doctor_schedule_data:/var/lib/postgresql/data
+
+  postgres-appointment:
+    image: postgres:15
+    container_name: medibook-postgres-appointment
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: medibook_appointment_db
+    ports:
+      - "5436:5432"
+    volumes:
+      - pg_appointment_data:/var/lib/postgresql/data
+
+  postgres-payment:
+    image: postgres:15
+    container_name: medibook-postgres-payment
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: medibook_payment_db
+    ports:
+      - "5437:5432"
+    volumes:
+      - pg_payment_data:/var/lib/postgresql/data
+
+  postgres-queue:
+    image: postgres:15
+    container_name: medibook-postgres-queue
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: medibook_queue_db
+    ports:
+      - "5438:5432"
+    volumes:
+      - pg_queue_data:/var/lib/postgresql/data
+
+  postgres-notification:
+    image: postgres:15
+    container_name: medibook-postgres-notification
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: medibook_notification_db
+    ports:
+      - "5439:5432"
+    volumes:
+      - pg_notification_data:/var/lib/postgresql/data
+
+  postgres-reporting:
+    image: postgres:15
+    container_name: medibook-postgres-reporting
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: medibook_reporting_db
+    ports:
+      - "5440:5432"
+    volumes:
+      - pg_reporting_data:/var/lib/postgresql/data
+
+  postgres-audit:
+    image: postgres:15
+    container_name: medibook-postgres-audit
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: medibook_audit_db
+    ports:
+      - "5441:5432"
+    volumes:
+      - pg_audit_data:/var/lib/postgresql/data
+
+  identity-service:
+    depends_on:
+      - postgres-identity
+
+  patient-service:
+    depends_on:
+      - postgres-patient
+
+  doctor-schedule-service:
+    depends_on:
+      - postgres-doctor-schedule
+
+  appointment-service:
+    depends_on:
+      - postgres-appointment
+
+  payment-service:
+    depends_on:
+      - postgres-payment
+
+  queue-service:
+    depends_on:
+      - postgres-queue
+
+  notification-service:
+    depends_on:
+      - postgres-notification
+
+  reporting-service:
+    depends_on:
+      - postgres-reporting
+
+  audit-service:
+    depends_on:
+      - postgres-audit
+
+volumes:
+  pg_identity_data:
+  pg_patient_data:
+  pg_doctor_schedule_data:
+  pg_appointment_data:
+  pg_payment_data:
+  pg_queue_data:
+  pg_notification_data:
+  pg_reporting_data:
+  pg_audit_data:
