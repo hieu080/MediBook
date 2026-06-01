@@ -14,6 +14,10 @@
 - Chuẩn hóa kiến trúc, luồng giao tiếp, dữ liệu, bảo mật, logging, triển khai.
 - Giảm rủi ro khi triển khai song song nhiều service.
 
+## 2.1 Phạm vi triển khai Phase 1 (đã chốt)
+- Triển khai trong Phase 1: `api-gateway`, `identity-service`, `patient-service`, `doctor-schedule-service`, `appointment-service`, `payment-service`, `notification-service`.
+- Đưa sang Phase 2: `queue-service`, `reporting-service`, `audit-service`.
+
 ## 3. Nguyên tắc thiết kế
 - Domain-driven decomposition theo bounded context.
 - Database per service, không truy cập chéo DB trực tiếp.
@@ -32,7 +36,7 @@
 - `queue-service`: check-in, cấp số thứ tự, trạng thái luồng khám.
 - `notification-service`: template, gửi SMS/Email/Zalo, retry.
 - `reporting-service`: tổng hợp KPI và dashboard.
-- `audit-service` (khuyến nghị cho phase 1 nếu đủ nguồn lực): audit trail tập trung.
+- `audit-service` (triển khai Phase 2): audit trail tập trung.
 
 ### 4.2 Thành phần hạ tầng
 - PostgreSQL (mỗi service một schema hoặc một DB riêng).

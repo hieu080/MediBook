@@ -18,8 +18,12 @@
 - Đặt lịch, đổi lịch, hủy lịch.
 - Thanh toán online/offline.
 - Gửi thông báo nhắc hẹn/cập nhật lịch.
-- Check-in và quản lý hàng đợi.
-- Báo cáo KPI cơ bản.
+
+
+### 3.1 Ngoài phạm vi Phase 1 (đưa sang Phase 2)
+- Check-in và quản lý hàng đợi (`queue-service`).
+- Báo cáo KPI/dashboards (`reporting-service`).
+- Audit service tập trung.
 
 ## 4. Thuật ngữ và viết tắt
 - BRD: Business Requirements Document
@@ -107,7 +111,7 @@
 4. Gửi thông báo hủy.
 - Hậu điều kiện: lịch hẹn hủy thành công.
 
-### UC-06: Check-in và quản lý hàng đợi
+### UC-06: Check-in và quản lý hàng đợi (Phase 2)
 - Actor: Patient, Receptionist
 - Tiền điều kiện: lịch hẹn hợp lệ trong ngày.
 - Luồng chính:
@@ -117,7 +121,7 @@
 4. Khi gọi khám -> `IN_PROGRESS`; kết thúc -> `COMPLETED`.
 - Hậu điều kiện: luồng khám được ghi nhận đầy đủ.
 
-### UC-07: Theo dõi KPI
+### UC-07: Theo dõi KPI (Phase 2)
 - Actor: Admin, Manager
 - Luồng chính:
 1. Reporting Service tổng hợp dữ liệu từ event/DB.
@@ -125,6 +129,7 @@
 - Hậu điều kiện: có báo cáo vận hành.
 
 ## 8. Functional Requirements (chi tiết)
+### 8.1 Phase 1
 - FR-01 Identity:
 - Đăng ký, đăng nhập, quên mật khẩu, refresh token.
 - Hỗ trợ role: `PATIENT`, `DOCTOR`, `RECEPTIONIST`, `ADMIN`, `BILLING`.
@@ -146,6 +151,8 @@
 - FR-07 Notification:
 - Gửi xác nhận đặt lịch ngay sau khi `BOOKED`.
 - Gửi nhắc lịch trước giờ khám theo rule (ví dụ T-24h, T-2h).
+
+### 8.2 Phase 2
 - FR-08 Queue:
 - Check-in bằng QR hoặc mã lịch hẹn.
 - Tạo số thứ tự theo phòng khám và mức ưu tiên.
@@ -193,8 +200,8 @@ Nhánh phụ:
 - `POST /api/v1/appointments`
 - `PATCH /api/v1/appointments/{id}/reschedule`
 - `PATCH /api/v1/appointments/{id}/cancel`
-- `POST /api/v1/appointments/{id}/check-in`
-- `GET /api/v1/reports/kpi`
+- (Phase 2) `POST /api/v1/appointments/{id}/check-in`
+- (Phase 2) `GET /api/v1/reports/kpi`
 
 ### 11.2 Nguyên tắc API
 - JSON UTF-8, version qua URI (`/v1`).
@@ -234,9 +241,9 @@ Nhánh phụ:
 - AC-01: Đặt lịch thành công trong trường hợp slot còn trống.
 - AC-02: Nếu 2 người cùng đặt 1 slot, chỉ 1 request thành công, request còn lại nhận `409 Conflict`.
 - AC-03: Hủy lịch trước deadline thực hiện hoàn tiền đúng rule.
-- AC-04: Check-in cập nhật đúng trạng thái và cấp số thứ tự.
-- AC-05: Notification gửi xác nhận và nhắc lịch đúng thời điểm cấu hình.
-- AC-06: Dashboard hiển thị đầy đủ KPI đã định nghĩa.
+- AC-04: Notification gửi xác nhận và nhắc lịch đúng thời điểm cấu hình.
+- (Phase 2) AC-05: Check-in cập nhật đúng trạng thái và cấp số thứ tự.
+- (Phase 2) AC-06: Dashboard hiển thị đầy đủ KPI đã định nghĩa.
 
 ## 15. Yêu cầu kiểm thử
 - Unit test cho domain logic và state transition.
@@ -257,8 +264,8 @@ Nhánh phụ:
 - BRD FR-05, FR-06 -> SRS FR-04, FR-05, UC-03, UC-04, UC-05
 - BRD FR-07 -> SRS FR-06
 - BRD FR-08 -> SRS FR-07
-- BRD FR-09 -> SRS FR-08, UC-06
-- BRD FR-10 -> SRS FR-09, UC-07
+- BRD FR-09 -> SRS FR-08 (Phase 2), UC-06 (Phase 2)
+- BRD FR-10 -> SRS FR-09 (Phase 2), UC-07 (Phase 2)
 
 ## 18. Mục cần chốt trước khi dev
 - Deadline đổi/hủy cụ thể (bao nhiêu giờ trước lịch khám).
