@@ -28,14 +28,16 @@
 - Đặt lịch, đổi lịch, hủy lịch.
 - Thanh toán cơ bản (online/offline).
 - Nhắc lịch tự động qua SMS/Email/Zalo (tùy tích hợp).
-- Check-in và điều phối trạng thái khám tại cơ sở.
-- Báo cáo vận hành cốt lõi.
 
 ### 4.2 Out of Scope (giai đoạn sau)
 - Tư vấn từ xa (telemedicine).
 - Tích hợp bảo hiểm nâng cao.
 - AI gợi ý lịch/đề xuất điều trị.
 - Quản lý bệnh án nâng cao liên viện.
+
+### 4.3 Scope theo phase (chốt triển khai)
+- Phase 1: `api-gateway`, `identity`, `patient`, `doctor-schedule`, `appointment`, `payment`, `notification`.
+- Phase 2: `queue`, `reporting`, `audit`, tích hợp HIS/EMR cơ bản.
 
 ## 5. Đối tượng sử dụng
 - Bệnh nhân/Người nhà
@@ -166,6 +168,7 @@
 ### Phase 2
 - Queue Service và luồng check-in tại cơ sở.
 - Reporting dashboard nâng cao.
+- Audit Service tập trung.
 - Tích hợp HIS/EMR mức cơ bản.
 
 ### Phase 3
@@ -178,8 +181,8 @@
 - Đồng bộ chính xác slot khám trong điều kiện tải thực tế.
 - Nhắc lịch tự động hoạt động ổn định.
 - Thanh toán ghi nhận đúng trạng thái và có cơ chế hoàn tiền cơ bản.
-- Check-in cập nhật đúng trạng thái lịch và luồng xếp hàng.
-- Dashboard hiển thị đầy đủ KPI cốt lõi.
+- (Phase 2) Check-in cập nhật đúng trạng thái lịch và luồng xếp hàng.
+- (Phase 2) Dashboard hiển thị đầy đủ KPI cốt lõi.
 
 ## 16. Phụ lục: Danh sách quyết định cần chốt sớm
 - Chính sách phí hủy/đổi lịch chi tiết theo thời gian.

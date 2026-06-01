@@ -15,6 +15,22 @@ Hospital Appointment System theo kiến trúc microservice.
 - `audit-service`
 - `docs/` (BRD, SRS, SDD, DBD, Coding Convention)
 
+
+## Phase 1 Scope (Business-aligned)
+Triển khai chính thức Phase 1 tập trung các service:
+- `api-gateway`
+- `identity-service`
+- `patient-service`
+- `doctor-schedule-service`
+- `appointment-service`
+- `payment-service`
+- `notification-service`
+
+Các service sau được scaffold sẵn nhưng ưu tiên triển khai ở Phase 2:
+- `queue-service`
+- `reporting-service`
+- `audit-service`
+
 ## 2. Tech Stack
 - Java 17
 - Spring Boot 4
@@ -58,7 +74,24 @@ Root project có file chọn env cho compose:
 ### 6.1 Local
 Local dùng PostgreSQL trong Docker. Kiểm tra các file `service/.env` có `DB_HOST` phù hợp.
 
-### 6.2 Dev/Prod
+### 6.2 IntelliJ DB Connection (Local)
+Khi kết nối từ IntelliJ (host machine), dùng `localhost` và host port mapping của Docker:
+
+- Identity: `jdbc:postgresql://localhost:5433/medibook_identity_db`
+- Patient: `jdbc:postgresql://localhost:5434/medibook_patient_db`
+- Doctor Schedule: `jdbc:postgresql://localhost:5435/medibook_doctor_schedule_db`
+- Appointment: `jdbc:postgresql://localhost:5436/medibook_appointment_db`
+- Payment: `jdbc:postgresql://localhost:5437/medibook_payment_db`
+- Queue: `jdbc:postgresql://localhost:5438/medibook_queue_db`
+- Notification: `jdbc:postgresql://localhost:5439/medibook_notification_db`
+- Reporting: `jdbc:postgresql://localhost:5440/medibook_reporting_db`
+- Audit: `jdbc:postgresql://localhost:5441/medibook_audit_db`
+
+Thông tin xác thực mặc định cho local compose:
+- user: `postgres`
+- password: `postgres`
+
+### 6.3 Dev/Prod
 Dev/Prod dùng Postgre server ngoài Docker. Cập nhật trong mỗi `service/.env.dev` hoặc `service/.env.prod`:
 - `DB_HOST`
 - `DB_PORT`
