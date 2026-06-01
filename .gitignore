@@ -33,5 +33,7 @@ build/
 .vscode/
 
 ### Environment files ###
-.env
-**/.env
+**/.env.dev
+**/.env.prod
+.env.dev-stack
+.env.prod-stack
