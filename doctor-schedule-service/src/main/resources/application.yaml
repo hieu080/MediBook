@@ -1,3 +1,5 @@
 spring:
   application:
     name: doctor-schedule-service
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}

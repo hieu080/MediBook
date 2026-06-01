@@ -1,3 +1,5 @@
 spring:
   application:
     name: audit-service
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
