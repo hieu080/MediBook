@@ -33,6 +33,9 @@ public class User {
     @Column(name = "public_id", nullable = false, unique = true, updatable = false)
     private UUID publicId;
 
+    @Column(name = "full_name", nullable = false, length = 150)
+    private String fullName;
+
     @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
 
