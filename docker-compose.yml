@@ -19,7 +19,9 @@ services:
       - "8080:8080"
 
   identity-service:
-    build: ./identity-service
+    build:
+      context: .
+      dockerfile: identity-service/Dockerfile
     env_file: ${IDENTITY_ENV_FILE:-./identity-service/.env}
     ports:
       - "8081:8081"
