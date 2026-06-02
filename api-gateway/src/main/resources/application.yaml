@@ -9,7 +9,7 @@ spring:
         - id: identity-service
           uri: http://${IDENTITY_SERVICE_HOST:localhost}:8081
           predicates:
-            - Path=/api/identity/**
+            - Path=/api/v1/auth/**,/api/v1/users/**
         - id: patient-service
           uri: http://${PATIENT_SERVICE_HOST:localhost}:8082
           predicates:

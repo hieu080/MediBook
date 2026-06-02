@@ -1,6 +1,7 @@
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
     public_id UUID NOT NULL UNIQUE,
+    full_name VARCHAR(150) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     phone_number VARCHAR(20),
     password_hash VARCHAR(255) NOT NULL,

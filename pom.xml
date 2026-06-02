@@ -23,6 +23,7 @@
         <module>notification-service</module>
         <module>reporting-service</module>
         <module>audit-service</module>
+        <module>share-kernel</module>
     </modules>
 
     <properties>
