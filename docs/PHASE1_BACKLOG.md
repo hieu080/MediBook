@@ -17,6 +17,10 @@ Ngoài phạm vi Phase 1:
 ## 2. Epic Breakdown
 
 ### EPIC-01: Identity & Access
+Ghi chú phạm vi:
+- Phase 1 chỉ triển khai JWT/auth flow cơ bản để chạy end-to-end.
+- Các cơ chế security nâng cao như refresh token rotation, phát hiện reuse token, risk check theo `deviceInfo`/`ipAddress`, session management nâng cao và step-up authentication sẽ đưa vào Phase 3.
+
 #### US-01: Đăng ký/đăng nhập bệnh nhân
 - Mô tả: Người dùng tạo tài khoản và đăng nhập để sử dụng hệ thống.
 - Priority: P0
