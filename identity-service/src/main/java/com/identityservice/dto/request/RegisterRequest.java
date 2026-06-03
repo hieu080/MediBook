@@ -3,8 +3,10 @@ package com.identityservice.dto.request;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
  * DTO yêu cầu đăng ký tài khoản mới.
@@ -17,6 +19,8 @@ import lombok.Getter;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RegisterRequest {
     @NotBlank(message = "Họ tên không được để trống")
     @Size(max = 150, message = "Họ tên không được vượt quá 150 ký tự")

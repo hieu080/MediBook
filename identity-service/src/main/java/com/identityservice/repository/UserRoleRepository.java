@@ -3,6 +3,7 @@ package com.identityservice.repository;
 import com.identityservice.entity.Role;
 import com.identityservice.entity.User;
 import com.identityservice.entity.UserRole;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,11 +17,15 @@ import java.util.Optional;
  * @since 2026-06
  * @version 1.0
  */
-
 @Repository
 public interface UserRoleRepository extends JpaRepository<UserRole, Long> {
     boolean existsByUserAndRoleAndDeletedAtIsNull(User user, Role role);
+
+    @EntityGraph(attributePaths = "role")
     List<UserRole> findAllByUserAndDeletedAtIsNull(User user);
+
+    @EntityGraph(attributePaths = "role")
     List<UserRole> findAllByUserIdAndDeletedAtIsNull(Long userId);
+
     Optional<UserRole> findByUserAndRoleAndDeletedAtIsNull(User user, Role role);
 }

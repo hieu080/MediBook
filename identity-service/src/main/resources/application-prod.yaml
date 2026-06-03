@@ -26,3 +26,18 @@ management:
 logging:
   level:
     root: WARN
+
+security:
+  jwt:
+    secret: ${JWT_SECRET_KEY}
+    access-token-expiration: ${ACCESS_TOKEN_EXPIRE_MILISECONDS}
+    refresh-token-expiration: ${REFRESH_TOKEN_EXPIRE_MILISECONDS}
+    issuer: ${JWT_ISSUER:identity-service}
+    header-name: Authorization
+    token-prefix: Bearer
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
