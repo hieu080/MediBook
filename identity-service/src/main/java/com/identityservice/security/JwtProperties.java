@@ -17,7 +17,11 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "security.jwt")
 public class JwtProperties {
-    private String secret;
+    private String keyId = "identity-service-key";
+    private String privateKey;
+    private String publicKey;
+    private String privateKeyPath;
+    private String publicKeyPath;
     private long accessTokenExpiration;
     private long refreshTokenExpiration;
     private String issuer;
