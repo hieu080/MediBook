@@ -46,37 +46,45 @@ Các service sau được scaffold sẵn nhưng ưu tiên triển khai ở Phase
 - Docker + Docker Compose
 
 ## 4. Configuration Model
-### 4.1 Spring profiles
-Mỗi service có:
-- `application.yaml` (base config, route, fixed port)
-- `application-local.yaml`
-- `application-dev.yaml`
-- `application-prod.yaml`
+### 4.1 Spring profile
+Mỗi service chỉ giữ cấu hình local:
+- `application.yaml` (base config, route, fixed port, active profile mặc định)
+- `application-local.yaml` (default chạy IDE/local)
 
-### 4.2 Env files
-Mỗi service có:
-- `.env` (local)
-- `.env.dev`
-- `.env.prod`
+`application.yaml` đang active profile mặc định là `local`:
 
-Root project có file chọn env cho compose:
-- `.env.local-stack`
-- `.env.dev-stack`
-- `.env.prod-stack`
+```yaml
+spring:
+  profiles:
+    active: local
+```
+
+Vì vậy khi chạy trên IDE không cần set profile.
+
+### 4.2 Local configuration
+`application-local.yaml` của từng service đã có sẵn default DB để chạy từ IDE:
+- host: `localhost`
+- user/password: `postgres` / `postgres`
+- schema: `public`
+- DB name và port đúng với compose local
+
+Docker không dùng các file `.env` service cho local nữa. Các biến cần cho container network được khai báo trực tiếp trong `docker-compose.yml`.
+
+Identity local tự tạo `identity-service/keys/jwt-private.pem` và `identity-service/keys/jwt-public.pem` nếu chưa có. Trong service, path mặc định là `keys/...`; Docker override sang `/app/identity-service/keys/...` và bind mount về thư mục này. Hai file `.pem` được ignore khỏi git để tránh commit secret.
 
 ## 5. Docker Compose Files
-- `docker-compose.yml`: base services (app + redis + rabbitmq)
-- `docker-compose.local.yml`: thêm PostgreSQL containers cho local
-- `docker-compose.dev.yml`: dev override (dùng Postgre server ngoài)
-- `docker-compose.prod.yml`: prod override (dùng Postgre server ngoài)
+- `docker-compose.yml`: local stack tự đủ app + PostgreSQL + Redis + RabbitMQ
 
 ## 6. How To Configure DB
-### 6.1 Local
-Local dùng PostgreSQL trong Docker. Kiểm tra các file `service/.env` có `DB_HOST` phù hợp.
+### 6.1 Local IDE
+Chạy database bằng Docker, sau đó run service trực tiếp trong IDE. Không cần set env nếu dùng cấu hình local mặc định.
 
-### 6.2 IntelliJ DB Connection (Local)
-Khi kết nối từ IntelliJ (host machine), dùng `localhost` và host port mapping của Docker:
+```bash
+cd /home/hieu-pt/Documents/MediBook
+docker compose up -d postgres-identity postgres-patient postgres-doctor-schedule postgres-appointment postgres-payment postgres-queue postgres-notification postgres-reporting postgres-audit redis rabbitmq
+```
 
+JDBC URLs local:
 - Identity: `jdbc:postgresql://localhost:5433/medibook_identity_db`
 - Patient: `jdbc:postgresql://localhost:5434/medibook_patient_db`
 - Doctor Schedule: `jdbc:postgresql://localhost:5435/medibook_doctor_schedule_db`
@@ -87,41 +95,34 @@ Khi kết nối từ IntelliJ (host machine), dùng `localhost` và host port ma
 - Reporting: `jdbc:postgresql://localhost:5440/medibook_reporting_db`
 - Audit: `jdbc:postgresql://localhost:5441/medibook_audit_db`
 
-Thông tin xác thực mặc định cho local compose:
+Thông tin xác thực mặc định:
 - user: `postgres`
 - password: `postgres`
 
-### 6.3 Dev/Prod
-Dev/Prod dùng Postgre server ngoài Docker. Cập nhật trong mỗi `service/.env.dev` hoặc `service/.env.prod`:
-- `DB_HOST`
-- `DB_PORT`
-- `DB_NAME`
-- `DB_USERNAME`
-- `DB_PASSWORD`
-- `DB_SCHEMA`
+### 6.2 Docker local stack
+Compose tự set `DB_HOST` theo tên container PostgreSQL và route host service cho API Gateway.
+
+```bash
+cd /home/hieu-pt/Documents/MediBook
+docker compose up --build -d
+```
 
 ## 7. Run With Docker Compose
-### 7.1 Local
+### 7.1 Local full stack
 ```bash
 cd /home/hieu-pt/Documents/MediBook
-docker compose -f docker-compose.yml -f docker-compose.local.yml --env-file .env.local-stack up --build -d
+docker compose up --build -d
 ```
 
-### 7.2 Dev
+### 7.2 Local infrastructure only for IDE
 ```bash
 cd /home/hieu-pt/Documents/MediBook
-docker compose -f docker-compose.yml -f docker-compose.dev.yml --env-file .env.dev-stack up --build -d
+docker compose up -d postgres-identity postgres-patient postgres-doctor-schedule postgres-appointment postgres-payment postgres-queue postgres-notification postgres-reporting postgres-audit redis rabbitmq
 ```
 
-### 7.3 Prod
+### 7.3 Stop
 ```bash
-cd /home/hieu-pt/Documents/MediBook
-docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.prod-stack up --build -d
-```
-
-### 7.4 Stop
-```bash
-docker compose -f docker-compose.yml -f docker-compose.local.yml --env-file .env.local-stack down
+docker compose down
 ```
 
 ## 8. Build Source (without Docker)
@@ -151,7 +152,7 @@ Một README đầy đủ nên có:
 3. Công nghệ sử dụng.
 4. Yêu cầu môi trường chạy.
 5. Cấu hình env và secret.
-6. Cách chạy local/dev/prod.
+6. Cách chạy local.
 7. Cách build/test/deploy.
 8. Danh sách service + port.
 9. Troubleshooting thường gặp.
@@ -161,9 +162,8 @@ Một README đầy đủ nên có:
 - `failed to connect to docker.sock`:
   - Docker daemon chưa chạy.
 - Service không connect DB:
-  - Kiểm tra `DB_HOST/DB_PORT/DB_NAME` trong env file tương ứng.
-- Dev/Prod vẫn trỏ DB local:
-  - Kiểm tra bạn đang dùng đúng `--env-file .env.dev-stack` hoặc `.env.prod-stack`.
+  - Với IDE: kiểm tra service đang dùng profile `local` và DB container đã chạy.
+  - Với Docker: kiểm tra `docker compose config` có đúng `DB_HOST/DB_PORT/DB_NAME`.
 
 ## 12. Documents
 - [BRD](/home/hieu-pt/Documents/MediBook/docs/BRD.md)

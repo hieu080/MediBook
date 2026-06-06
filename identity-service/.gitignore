@@ -33,4 +33,5 @@ build/
 .vscode/
 
 ### Local JWT keys ###
-keys/
+keys/*.pem
+!keys/.gitkeep

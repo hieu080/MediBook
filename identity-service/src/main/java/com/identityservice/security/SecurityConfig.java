@@ -51,7 +51,7 @@ public class SecurityConfig {
                                 "/api/v1/auth/refresh",
                                 "/api/v1/auth/logout",
                                 "/api/v1/auth/.well-known/jwks.json",
-//                                "/api/v1/users/**",
+                                "/api/v1/users/**",
                                 "/actuator/health",
                                 "/v3/api-docs/**",
                                 "/v3/api-docs.yaml",

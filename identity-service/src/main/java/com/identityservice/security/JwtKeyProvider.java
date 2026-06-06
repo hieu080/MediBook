@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -50,13 +51,32 @@ public class JwtKeyProvider {
     }
 
     private KeyPair resolveKeyPair(JwtProperties properties) {
-        if (hasText(properties.getPrivateKey()) || hasText(properties.getPrivateKeyPath())) {
+        if (hasText(properties.getPrivateKey())) {
             return loadConfiguredKeyPair(
-                    readKey(properties.getPrivateKey(), properties.getPrivateKeyPath(), "JWT private key"),
-                    readKey(properties.getPublicKey(), properties.getPublicKeyPath(), "JWT public key")
+                    properties.getPrivateKey(),
+                    readOptionalKey(properties.getPublicKey(), properties.getPublicKeyPath(), "JWT public key")
             );
         }
+        if (hasText(properties.getPrivateKeyPath())) {
+            return loadOrCreateConfiguredKeyPair(properties.getPrivateKeyPath(), properties.getPublicKeyPath());
+        }
         return generateDevelopmentKeyPair();
+    }
+
+    private KeyPair loadOrCreateConfiguredKeyPair(String privateKeyPathValue, String publicKeyPathValue) {
+        Path privateKeyPath = Path.of(privateKeyPathValue);
+        Path publicKeyPath = hasText(publicKeyPathValue) ? Path.of(publicKeyPathValue) : null;
+        if (!Files.exists(privateKeyPath)) {
+            return generateAndPersistDevelopmentKeyPair(privateKeyPath, publicKeyPath);
+        }
+        KeyPair keyPair = loadConfiguredKeyPair(
+                readRequiredKey(privateKeyPath, "JWT private key"),
+                readOptionalKey(null, publicKeyPathValue, "JWT public key")
+        );
+        if (publicKeyPath != null && !Files.exists(publicKeyPath)) {
+            writePem(publicKeyPath, "PUBLIC KEY", keyPair.getPublic().getEncoded(), "JWT public key");
+        }
+        return keyPair;
     }
 
     private KeyPair loadConfiguredKeyPair(String privateKeyPem, String publicKeyPem) {
@@ -87,25 +107,61 @@ public class JwtKeyProvider {
         try {
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
             keyPairGenerator.initialize(2048);
-            log.warn("JWT RSA key is generated at startup. Configure JWT_PRIVATE_KEY or JWT_PRIVATE_KEY_PATH for stable tokens.");
+            log.warn("JWT RSA key is generated in memory at startup. Configure JWT_PRIVATE_KEY_PATH for stable tokens.");
             return keyPairGenerator.generateKeyPair();
         } catch (Exception ex) {
             throw new IllegalStateException("Unable to generate RSA JWT key pair", ex);
         }
     }
 
-    private String readKey(String inlineValue, String pathValue, String label) {
+    private KeyPair generateAndPersistDevelopmentKeyPair(Path privateKeyPath, Path publicKeyPath) {
+        KeyPair keyPair = generateDevelopmentKeyPair();
+        writePem(privateKeyPath, "PRIVATE KEY", keyPair.getPrivate().getEncoded(), "JWT private key");
+        if (publicKeyPath != null) {
+            writePem(publicKeyPath, "PUBLIC KEY", keyPair.getPublic().getEncoded(), "JWT public key");
+        }
+        log.warn("JWT RSA key pair is generated and saved to {}{}", privateKeyPath,
+                publicKeyPath != null ? " and " + publicKeyPath : "");
+        return keyPair;
+    }
+
+    private String readOptionalKey(String inlineValue, String pathValue, String label) {
         if (hasText(inlineValue)) {
             return inlineValue;
         }
         if (!hasText(pathValue)) {
             return null;
         }
-        try {
-            return Files.readString(Path.of(pathValue));
-        } catch (Exception ex) {
-            throw new IllegalStateException("Unable to read " + label + " from " + pathValue, ex);
+        Path path = Path.of(pathValue);
+        if (!Files.exists(path)) {
+            return null;
         }
+        return readRequiredKey(path, label);
+    }
+
+    private String readRequiredKey(Path path, String label) {
+        try {
+            return Files.readString(path);
+        } catch (Exception ex) {
+            throw new IllegalStateException("Unable to read " + label + " from " + path, ex);
+        }
+    }
+
+    private void writePem(Path path, String type, byte[] encoded, String label) {
+        try {
+            Path parent = path.getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+            Files.writeString(path, toPem(type, encoded), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (Exception ex) {
+            throw new IllegalStateException("Unable to write " + label + " to " + path, ex);
+        }
+    }
+
+    private String toPem(String type, byte[] encoded) {
+        String body = Base64.getMimeEncoder(64, new byte[]{'\n'}).encodeToString(encoded);
+        return "-----BEGIN " + type + "-----\n" + body + "\n-----END " + type + "-----\n";
     }
 
     private byte[] decodeKey(String value) {
