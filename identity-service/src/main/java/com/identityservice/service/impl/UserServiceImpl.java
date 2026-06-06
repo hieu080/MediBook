@@ -1,7 +1,9 @@
 package com.identityservice.service.impl;
 
 import com.identityservice.dto.request.RegisterRequest;
-import com.identityservice.dto.response.UserResponse;
+import com.identityservice.dto.response.UserAdminResponse;
+import com.identityservice.dto.response.UserBasicResponse;
+import com.identityservice.dto.response.UserPrivateResponse;
 import com.identityservice.entity.Role;
 import com.identityservice.entity.User;
 import com.identityservice.exception.IdentityException;
@@ -11,6 +13,7 @@ import com.identityservice.mapper.UserMapper;
 import com.identityservice.repository.RoleRepository;
 import com.identityservice.repository.UserRepository;
 import com.identityservice.repository.UserRoleRepository;
+import com.identityservice.security.CurrentUserFacade;
 import com.identityservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -39,7 +43,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public UserResponse createUser(RegisterRequest request) {
+    public UserPrivateResponse createUser(RegisterRequest request) {
         if (userRepository.existsByEmailAndDeletedAtIsNull(request.getEmail())) {
             throw new IdentityException(UserErrorCode.USER_ALREADY_EXISTS);
         }
@@ -55,23 +59,76 @@ public class UserServiceImpl implements UserService {
         );
         User savedUser = userRepository.save(user);
         assignDefaultPatientRole(savedUser, now);
-        return userMapper.toResponse(savedUser);
+
+        List<String> roles = userRoleRepository.findAllByUserAndDeletedAtIsNull(savedUser)
+                .stream()
+                .map(userRole -> userRole.getRole().getCode())
+                .toList();
+
+        return userMapper.toPrivateResponse(savedUser, roles);
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public UserResponse getUserByPublicId(UUID publicId) {
+    public UserBasicResponse getBasicUserDetailByPublicId(UUID publicId) {
         User user = userRepository.findByPublicIdAndDeletedAtIsNull(publicId)
                 .orElseThrow(() -> new IdentityException(UserErrorCode.USER_NOT_FOUND));
-        return userMapper.toResponse(user);
+
+        List<String> roles = userRoleRepository.findAllByUserAndDeletedAtIsNull(user)
+                .stream()
+                .map(userRole -> userRole.getRole().getCode())
+                .toList();
+        return userMapper.toBasicResponse(user, roles);
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public UserResponse getUserByEmail(String email) {
+    public UserBasicResponse getBasicUserDetailByEmail(String email) {
         User user = userRepository.findByEmailAndDeletedAtIsNull(email)
                 .orElseThrow(() -> new IdentityException(UserErrorCode.USER_NOT_FOUND));
-        return userMapper.toResponse(user);
+
+        List<String> roles = userRoleRepository.findAllByUserAndDeletedAtIsNull(user)
+                .stream()
+                .map(userRole -> userRole.getRole().getCode())
+                .toList();
+        return userMapper.toBasicResponse(user, roles);
+    }
+
+    @Override
+    public UserPrivateResponse getMyUserDetail() {
+        CurrentUserFacade currentUserFacade = new CurrentUserFacade();
+        UUID publicId = currentUserFacade.getCurrentPublicId();
+
+        User user = userRepository.findByPublicIdAndDeletedAtIsNull(publicId)
+                .orElseThrow(() -> new IdentityException(UserErrorCode.USER_NOT_FOUND));
+
+        List<String> roles = userRoleRepository.findAllByUserAndDeletedAtIsNull(user)
+                .stream()
+                .map(userRole -> userRole.getRole().getCode())
+                .toList();
+        return userMapper.toPrivateResponse(user, roles);
+    }
+
+    @Override
+    public UserAdminResponse getAdminUserDetailByPublicId(UUID publicId) {
+        User user = userRepository.findByPublicIdAndDeletedAtIsNull(publicId)
+                .orElseThrow(() -> new IdentityException(UserErrorCode.USER_NOT_FOUND));
+
+        List<String> roles = userRoleRepository.findAllByUserAndDeletedAtIsNull(user)
+                .stream()
+                .map(userRole -> userRole.getRole().getCode())
+                .toList();
+        return userMapper.toAdminResponse(user, roles);
+    }
+
+    @Override
+    public UserAdminResponse getAdminUserDetailByEmail(String email) {
+        User user = userRepository.findByEmailAndDeletedAtIsNull(email)
+                .orElseThrow(() -> new IdentityException(UserErrorCode.USER_NOT_FOUND));
+
+        List<String> roles = userRoleRepository.findAllByUserAndDeletedAtIsNull(user)
+                .stream()
+                .map(userRole -> userRole.getRole().getCode())
+                .toList();
+        return userMapper.toAdminResponse(user, roles);
     }
 
     private void assignDefaultPatientRole(User user, LocalDateTime createdAt) {

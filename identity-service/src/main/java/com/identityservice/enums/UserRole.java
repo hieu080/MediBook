@@ -6,6 +6,7 @@ package com.identityservice.enums;
  *     <li>PATIENT: Người bệnh</li>
  *     <li>RECEPTIONIST: Lễ tân</li>
  *     <li>ADMIN: Quản trị viên</li>
+ *     <li>DOCTOR: Bác sĩ</li>
  * </ul>
  *
  * @author hieu080
@@ -15,5 +16,6 @@ package com.identityservice.enums;
 public enum UserRole {
     PATIENT,
     RECEPTIONIST,
-    ADMIN
+    ADMIN,
+    DOCTOR
 }
