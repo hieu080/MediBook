@@ -2,7 +2,7 @@ spring:
   application:
     name: doctor-schedule-service
   profiles:
-    active: ${SPRING_PROFILES_ACTIVE:local}
+    active: local
 
 server:
   port: 8083

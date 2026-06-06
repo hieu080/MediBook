@@ -169,17 +169,17 @@ Ghi chú phạm vi:
 2. Luồng E2E cơ bản pass theo kịch bản.
 
 ### EPIC-09: DevOps & Runtime
-#### US-12: Chạy stack local/dev/prod bằng compose
-- Mô tả: Chuẩn hóa vận hành theo file compose đã tách môi trường.
+#### US-12: Chạy local stack bằng compose
+- Mô tả: Chuẩn hóa vận hành local bằng một file compose duy nhất.
 - Priority: P0
 - Estimate: 5 SP
 - Tasks:
-1. Duy trì `docker-compose.yml` + `docker-compose.local.yml` + `docker-compose.dev.yml` + `docker-compose.prod.yml`.
-2. Duy trì `.env.local-stack/.env.dev-stack/.env.prod-stack`.
+1. Duy trì `docker-compose.yml` cho app + PostgreSQL + Redis + RabbitMQ.
+2. Giữ cấu hình local trong `application.yaml` và `application-local.yaml`.
 3. Checklist runbook startup/shutdown.
 - Done Criteria:
 1. Local stack khởi động thành công.
-2. Dev/prod profile đọc đúng env file.
+2. IDE và Docker dùng được cùng cấu hình local.
 
 ## 3. Milestone Gợi ý (4 Sprint)
 - Sprint 1: EPIC-01, EPIC-02, nền tảng gateway.

@@ -4,12 +4,9 @@ import com.identityservice.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -28,17 +25,21 @@ public class JwtService {
 
     private final JwtProperties jwtProperties;
     private final JwtClaimsFactory jwtClaimsFactory;
+    private final JwtKeyProvider jwtKeyProvider;
 
     public String generateAccessToken(User user, List<String> roles) {
         long now = System.currentTimeMillis();
         Map<String, Object> claims = jwtClaimsFactory.createAccessTokenClaims(user, roles);
         return Jwts.builder()
+                .header()
+                .keyId(jwtKeyProvider.getKeyId())
+                .and()
                 .claims(claims)
                 .subject(user.getEmail())
                 .issuer(jwtProperties.getIssuer())
                 .issuedAt(new Date(now))
                 .expiration(new Date(now + jwtProperties.getAccessTokenExpiration()))
-                .signWith(getSigningKey())
+                .signWith(jwtKeyProvider.getPrivateKey(), Jwts.SIG.RS256)
                 .compact();
     }
 
@@ -48,7 +49,7 @@ public class JwtService {
 
     public Claims extractAllClaims(String token) {
         return Jwts.parser()
-                .verifyWith(getSigningKey())
+                .verifyWith(jwtKeyProvider.getPublicKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
@@ -71,7 +72,4 @@ public class JwtService {
         return jwtProperties.getAccessTokenExpiration() / 1000L;
     }
 
-    private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
-    }
 }
