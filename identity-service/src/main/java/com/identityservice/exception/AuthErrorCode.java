@@ -16,21 +16,21 @@ public enum AuthErrorCode implements BaseErrorCode {
             "urn:problem:invalid-credentials",
             "Invalid credentials",
             HttpStatus.UNAUTHORIZED,
-            "Email hoac mat khau khong dung"
+            "Email hoặc mật khẩu không đúng"
     ),
     AUTHENTICATION_REQUIRED(
             "AUTHENTICATION_REQUIRED",
             "urn:problem:authentication-required",
             "Authentication required",
             HttpStatus.UNAUTHORIZED,
-            "Can dang nhap de truy cap tai nguyen nay"
+            "Cần đăng nhập để truy cập tài nguyên này"
     ),
     ACCESS_DENIED(
             "ACCESS_DENIED",
             "urn:problem:access-denied",
             "Access denied",
             HttpStatus.FORBIDDEN,
-            "Ban khong co quyen truy cap tai nguyen nay"
+            "Bạn không có quyền truy cập tài nguyên này"
     );
 
     private final String code;

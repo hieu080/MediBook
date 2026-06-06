@@ -16,28 +16,28 @@ public enum UserErrorCode implements BaseErrorCode {
             "urn:problem:user-already-exists",
             "User already exists",
             HttpStatus.CONFLICT,
-            "Nguoi dung da ton tai"
+            "Người dùng đã tồn tại"
     ),
     USER_NOT_FOUND(
             "USER_NOT_FOUND",
             "urn:problem:user-not-found",
             "User not found",
             HttpStatus.NOT_FOUND,
-            "Khong tim thay nguoi dung"
+            "Không tìm thấy người dùng"
     ),
     USER_INACTIVE(
             "USER_INACTIVE",
             "urn:problem:user-inactive",
             "User inactive",
             HttpStatus.FORBIDDEN,
-            "Nguoi dung chua duoc kich hoat hoac da bi vo hieu hoa"
+            "Người dùng chưa được kích hoạt hoặc đã bị vô hiệu hóa"
     ),
     USER_SUSPENDED(
             "USER_SUSPENDED",
             "urn:problem:user-suspended",
             "User suspended",
             HttpStatus.FORBIDDEN,
-            "Tai khoan nguoi dung da bi tam khoa"
+            "Tài khoản người dùng đã bị tạm ngưng hoạt động"
     );
 
     private final String code;

@@ -1,7 +1,9 @@
 package com.identityservice.service;
 
 import com.identityservice.dto.request.RegisterRequest;
-import com.identityservice.dto.response.UserResponse;
+import com.identityservice.dto.response.UserAdminResponse;
+import com.identityservice.dto.response.UserBasicResponse;
+import com.identityservice.dto.response.UserPrivateResponse;
 
 import java.util.UUID;
 
@@ -14,9 +16,15 @@ import java.util.UUID;
  */
 public interface UserService {
 
-    UserResponse createUser(RegisterRequest request);
+    UserPrivateResponse createUser(RegisterRequest request);
 
-    UserResponse getUserByPublicId(UUID publicId);
+    UserBasicResponse getBasicUserDetailByPublicId(UUID publicId);
 
-    UserResponse getUserByEmail(String email);
+    UserBasicResponse getBasicUserDetailByEmail(String email);
+
+    UserPrivateResponse getMyUserDetail();
+
+    UserAdminResponse getAdminUserDetailByPublicId(UUID publicId);
+
+    UserAdminResponse getAdminUserDetailByEmail(String email);
 }

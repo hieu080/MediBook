@@ -3,12 +3,8 @@ package com.identityservice.dto.response;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.List;
-import java.util.UUID;
-
 /**
- * DTO phan hoi sau khi nguoi dung dang nhap hoac dang ky thanh cong.
- * Chua thong tin token truy cap va thong tin nguoi dung.
+ * DTO phản hồi lại sau khi người dùng đăng nhập hoặc cấp lại token thành công.
  *
  * @author hieu080
  * @since 2026-06
@@ -18,8 +14,5 @@ import java.util.UUID;
 @Builder
 public class AuthResponse {
     private JwtTokenResponse token;
-    private UUID publicId;
-    private String fullName;
-    private String email;
-    private List<String> roles;
+    private UserPrivateResponse user;
 }

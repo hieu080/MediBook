@@ -5,7 +5,7 @@ import com.identityservice.dto.request.RefreshTokenRequest;
 import com.identityservice.dto.request.RegisterRequest;
 import com.identityservice.dto.response.AuthResponse;
 import com.identityservice.dto.response.JwtTokenResponse;
-import com.identityservice.dto.response.UserResponse;
+import com.identityservice.dto.response.UserPrivateResponse;
 import com.identityservice.entity.RefreshToken;
 import com.identityservice.entity.User;
 import com.identityservice.enums.UserStatus;
@@ -51,11 +51,11 @@ public class AuthServiceImpl implements AuthService {
     private final CurrentUserFacade currentUserFacade;
 
     @Override
-    public UserResponse register(RegisterRequest request) {
-        UserResponse createdUser = userService.createUser(request);
+    public UserPrivateResponse register(RegisterRequest request) {
+        UserPrivateResponse createdUser = userService.createUser(request);
         User user = userRepository.findByPublicIdAndDeletedAtIsNull(createdUser.getPublicId())
                 .orElseThrow(() -> new IdentityException(UserErrorCode.USER_NOT_FOUND));
-        return userMapper.toResponse(user);
+        return userMapper.toPrivateResponse(user, loadRoleCodes(user));
     }
 
     @Override
@@ -104,7 +104,7 @@ public class AuthServiceImpl implements AuthService {
                 refreshToken,
                 jwtService.getAccessTokenExpiration()
         );
-        return authMapper.toAuthResponse(user, roles, jwtTokenResponse);
+        return authMapper.toAuthResponse(userMapper.toPrivateResponse(user, roles), jwtTokenResponse);
     }
 
     private List<String> loadRoleCodes(User user) {

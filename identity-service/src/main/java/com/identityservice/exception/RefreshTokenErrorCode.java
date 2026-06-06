@@ -16,21 +16,21 @@ public enum RefreshTokenErrorCode implements BaseErrorCode {
             "urn:problem:refresh-token-invalid",
             "Refresh token invalid",
             HttpStatus.UNAUTHORIZED,
-            "Refresh token khong hop le"
+            "Refresh token không hợp lệ"
     ),
     REFRESH_TOKEN_EXPIRED(
             "REFRESH_TOKEN_EXPIRED",
             "urn:problem:refresh-token-expired",
             "Refresh token expired",
             HttpStatus.UNAUTHORIZED,
-            "Refresh token da het han"
+            "Refresh token đã hết hạn"
     ),
     REFRESH_TOKEN_REVOKED(
             "REFRESH_TOKEN_REVOKED",
             "urn:problem:refresh-token-revoked",
             "Refresh token revoked",
             HttpStatus.UNAUTHORIZED,
-            "Refresh token da bi thu hoi"
+            "Refresh token đã bị thu hồi"
     );
 
     private final String code;
