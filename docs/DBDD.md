@@ -35,59 +35,159 @@
 
 ## 5. Thiết kế bảng theo service
 ### 5.1 Identity DB
+Identity DB lưu dữ liệu tài khoản, vai trò và refresh token. Các service nghiệp vụ khác chỉ tham chiếu logic tới người dùng qua `public_id` hoặc claim trong JWT, không tạo FK chéo DB.
+
 #### `users`
-- `user_id UUID PK`
-- `username VARCHAR(100) UNIQUE NOT NULL`
+- `id BIGSERIAL PK`
+- `public_id UUID UNIQUE NOT NULL`
+  - Khóa nghiệp vụ/public identifier dùng trong API, JWT claim và liên kết logic sang service khác.
+- `full_name VARCHAR(150) NOT NULL`
+- `email VARCHAR(100) UNIQUE NOT NULL`
+- `phone_number VARCHAR(20)`
 - `password_hash VARCHAR(255) NOT NULL`
-- `email VARCHAR(150) UNIQUE`
-- `phone VARCHAR(20) UNIQUE`
-- `status VARCHAR(20) NOT NULL` (`ACTIVE|LOCKED|INACTIVE`)
-- `last_login_at TIMESTAMPTZ`
-- `created_at TIMESTAMPTZ NOT NULL`
-- `updated_at TIMESTAMPTZ NOT NULL`
+  - Lưu BCrypt hash, không lưu mật khẩu plaintext.
+- `status VARCHAR(50) NOT NULL`
+  - Giá trị hiện tại theo enum app: `ACTIVE|INACTIVE|SUSPENDED`.
+- `created_at TIMESTAMP NOT NULL`
+- `updated_at TIMESTAMP`
+- `deleted_at TIMESTAMP`
+  - Soft delete tài khoản; các truy vấn nghiệp vụ lọc `deleted_at IS NULL`.
+
+Ràng buộc/chỉ mục:
+- `PRIMARY KEY(id)`
+- `UNIQUE(public_id)`
+- `UNIQUE(email)`
 
 #### `roles`
-- `role_id UUID PK`
-- `role_code VARCHAR(50) UNIQUE NOT NULL`
-- `role_name VARCHAR(100) NOT NULL`
+- `id BIGSERIAL PK`
+- `code VARCHAR(50) UNIQUE NOT NULL`
+- `name VARCHAR(100) NOT NULL`
+
+Role seed Phase 1:
+- `PATIENT`
+- `DOCTOR`
+- `RECEPTIONIST`
+- `ADMIN`
+
+Ràng buộc/chỉ mục:
+- `PRIMARY KEY(id)`
+- `UNIQUE(code)`
 
 #### `user_roles`
-- `user_id UUID NOT NULL`
-- `role_id UUID NOT NULL`
-- `PRIMARY KEY(user_id, role_id)`
+- `id BIGSERIAL PK`
+- `user_id BIGINT NOT NULL`
+- `role_id BIGINT NOT NULL`
+- `created_at TIMESTAMP NOT NULL`
+- `deleted_at TIMESTAMP`
 
-#### `sessions`
-- `session_id UUID PK`
-- `user_id UUID NOT NULL`
-- `refresh_token_hash VARCHAR(255) NOT NULL`
-- `expires_at TIMESTAMPTZ NOT NULL`
-- `revoked_at TIMESTAMPTZ`
+Ràng buộc/chỉ mục:
+- `PRIMARY KEY(id)`
+- `FOREIGN KEY(user_id) REFERENCES users(id)`
+- `FOREIGN KEY(role_id) REFERENCES roles(id)`
+- `UNIQUE(user_id, role_id)`
+
+Ghi chú:
+- User đăng ký qua auth flow được gán mặc định role `PATIENT`.
+- `deleted_at` trên `user_roles` dùng cho soft revoke role, nhưng unique constraint hiện tại vẫn không cho tạo lại cùng cặp `user_id/role_id` sau khi soft delete. Nếu cần re-assign role sau này, thêm migration đổi sang partial unique index `WHERE deleted_at IS NULL`.
+
+#### `refresh_tokens`
+- `id BIGSERIAL PK`
+- `user_id BIGINT NOT NULL`
+- `token_hash VARCHAR(255) UNIQUE NOT NULL`
+  - Lưu SHA-256 hash của refresh token raw.
+- `expires_at BIGINT NOT NULL`
+  - Epoch milliseconds.
+- `revoked_at BIGINT`
+  - Epoch milliseconds, `NULL` nghĩa là token chưa bị revoke.
+- `device_info VARCHAR(255)`
+- `ip_address VARCHAR(255)`
+
+Ràng buộc/chỉ mục:
+- `PRIMARY KEY(id)`
+- `FOREIGN KEY(user_id) REFERENCES users(id)`
+- `UNIQUE(token_hash)`
+- `INDEX(user_id)`
+- `INDEX(expires_at)`
+
+Ghi chú:
+- Phase 1 hỗ trợ refresh token cơ bản: create, validate, revoke, revoke all by user.
+- Rotation nâng cao, reuse detection, session risk check theo device/IP sẽ nằm ngoài Phase 1.
 
 ---
 ### 5.2 Patient DB
+Patient DB lưu hồ sơ bệnh nhân độc lập với tài khoản đăng nhập. Một hồ sơ bệnh nhân có thể thuộc chính người dùng đang đăng nhập, hoặc là hồ sơ phụ thuộc do phụ huynh/người thân/người giám hộ tạo cho trẻ em, người già, hoặc người không tự dùng hệ thống.
+
+Thiết kế hiện tại dùng `id BIGSERIAL` làm khóa chính nội bộ trong Patient Service và dùng `public_id UUID` làm định danh công khai/liên service.
+
 #### `patients`
-- `patient_id UUID PK`
-- `user_id UUID UNIQUE`
+- `id BIGSERIAL PK`
+  - Khóa chính nội bộ, chỉ dùng trong Patient DB.
+- `public_id UUID NOT NULL UNIQUE`
+  - Định danh công khai của hồ sơ bệnh nhân, dùng khi service khác cần tham chiếu logic.
+- `user_id UUID NULL`
+  - Tham chiếu logic tới `identity_db.users.public_id`, không FK chéo DB.
+  - Cho phép `NULL` để hỗ trợ hồ sơ phụ thuộc không có tài khoản đăng nhập riêng.
+  - Nếu có giá trị thì unique để một tài khoản chỉ gắn trực tiếp với một hồ sơ chính.
 - `full_name VARCHAR(150) NOT NULL`
-- `dob DATE NOT NULL`
-- `gender VARCHAR(10)`
-- `phone VARCHAR(20) NOT NULL`
-- `email VARCHAR(150)`
-- `address TEXT`
+- `date_of_birth DATE NOT NULL`
+- `gender VARCHAR(20) NOT NULL`
+  - Giá trị: `MALE|FEMALE|OTHER|UNKNOWN`.
+- `phone_number VARCHAR(20)`
+- `email VARCHAR(100)`
+- `address VARCHAR(255)`
+- `insurance_number VARCHAR(50)`
+  - Số BHYT hoặc mã bảo hiểm y tế dùng hỗ trợ đối soát/liên kết hồ sơ khi người phụ thuộc tự tạo tài khoản sau này.
 - `emergency_contact_name VARCHAR(150)`
 - `emergency_contact_phone VARCHAR(20)`
-- `created_at TIMESTAMPTZ NOT NULL`
-- `updated_at TIMESTAMPTZ NOT NULL`
+- `created_at TIMESTAMP NOT NULL`
+- `updated_at TIMESTAMP`
+- `deleted_at TIMESTAMP`
 
-#### `patient_dependents`
-- `dependent_id UUID PK`
-- `patient_id UUID NOT NULL`
-- `full_name VARCHAR(150) NOT NULL`
-- `dob DATE`
-- `relationship VARCHAR(50) NOT NULL`
-- `phone VARCHAR(20)`
-- `created_at TIMESTAMPTZ NOT NULL`
-- `updated_at TIMESTAMPTZ NOT NULL`
+Ràng buộc/chỉ mục:
+- `PRIMARY KEY(id)`
+- `UNIQUE(public_id)`
+- Partial unique index: `UNIQUE(user_id) WHERE user_id IS NOT NULL`
+- Partial unique index: `UNIQUE(email) WHERE email IS NOT NULL`
+- Partial unique index tùy chính sách dữ liệu: `UNIQUE(insurance_number) WHERE insurance_number IS NOT NULL`
+- `INDEX(full_name)` hoặc trigram/full-text index nếu cần search theo tên.
+- `INDEX(phone_number)` nếu nghiệp vụ lễ tân cần tìm nhanh theo số điện thoại.
+
+Ghi chú:
+- `phone_number` và `email` không bắt buộc ở mức hồ sơ bệnh nhân vì trẻ em/người già có thể dùng thông tin liên hệ của người quản lý hồ sơ.
+- `insurance_number` có thể dùng như một tín hiệu match mạnh để liên kết hồ sơ phụ thuộc với account mới, nhưng luồng claim/link hồ sơ vẫn cần xác minh bổ sung để tránh chiếm nhầm hồ sơ.
+- Thông tin tài khoản/auth vẫn nằm ở `identity-service`; Patient DB chỉ lưu thông tin hồ sơ khám.
+
+#### `patient_relationships`
+- `id BIGSERIAL PK`
+  - Khóa chính nội bộ, chỉ dùng trong Patient DB.
+- `public_id UUID NOT NULL UNIQUE`
+  - Định danh công khai của quan hệ bệnh nhân-người dùng.
+- `patient_public_id UUID NOT NULL`
+  - FK nội bộ tới `patients.public_id`.
+- `related_user_public_id UUID NOT NULL`
+  - Tham chiếu logic tới `identity_db.users.public_id`, người có quyền liên quan tới hồ sơ.
+- `relationship_type VARCHAR(50) NOT NULL`
+  - Giá trị: `SELF|PARENT|CHILD|SPOUSE|GUARDIAN|CAREGIVER|OTHER`.
+- `permission_level VARCHAR(30) NOT NULL`
+  - Giá trị: `OWNER|MANAGER|VIEWER`.
+- `is_primary_contact BOOLEAN NOT NULL DEFAULT FALSE`
+- `created_at TIMESTAMP NOT NULL`
+- `updated_at TIMESTAMP`
+- `deleted_at TIMESTAMP`
+
+Ràng buộc/chỉ mục:
+- `PRIMARY KEY(id)`
+- `UNIQUE(public_id)`
+- `FOREIGN KEY(patient_public_id) REFERENCES patients(public_id)`
+- `UNIQUE(patient_public_id, related_user_public_id, relationship_type) WHERE deleted_at IS NULL`
+- `UNIQUE(patient_public_id) WHERE is_primary_contact = TRUE AND deleted_at IS NULL`
+- `INDEX(related_user_public_id, deleted_at)` để lấy danh sách hồ sơ mà một user được quản lý/xem.
+- `INDEX(patient_public_id, deleted_at)` để lấy các user liên quan tới một hồ sơ.
+
+Ghi chú:
+- Hồ sơ chính của một user nên có một relationship `SELF` với `permission_level = OWNER`.
+- Hồ sơ do phụ huynh/người giám hộ tạo cho người phụ thuộc sẽ có `patients.user_id = NULL` và relationship tới user tạo hồ sơ với `PARENT|GUARDIAN|CAREGIVER`.
+- Authorization ở Patient Service nên dựa vào `patient_relationships` kết hợp role từ JWT.
 
 ---
 ### 5.3 Doctor Schedule DB
@@ -274,7 +374,7 @@ Ràng buộc chính:
 - `PRIMARY KEY(fact_date, facility_id)`
 
 ## 6. Quan hệ logic liên service
-- `appointments.patient_id` tham chiếu logic đến `patients.patient_id` (không FK chéo DB).
+- `appointments.patient_id` tham chiếu logic đến `patients.public_id` (không FK chéo DB).
 - `appointments.slot_id` tham chiếu logic đến `slots.slot_id`.
 - `payments.appointment_id` tham chiếu logic đến `appointments.appointment_id`.
 - `queue_tickets.appointment_id` tham chiếu logic đến `appointments.appointment_id`.
@@ -287,9 +387,21 @@ Kiểm soát nhất quán:
 - `slots(doctor_id, slot_start, status)`
 - `slots(facility_id, slot_start, status)`
 - `appointments(patient_id, created_at DESC)`
+- `patients(user_id) WHERE user_id IS NOT NULL`
+- `patients(phone_number)`
+- `patients(insurance_number) WHERE insurance_number IS NOT NULL`
+- `patient_relationships(related_user_public_id, deleted_at)`
+- `patient_relationships(patient_public_id, deleted_at)`
 - `appointments(doctor_id, status, created_at DESC)`
 - `payments(appointment_id)`
 - `payments(status, created_at DESC)`
+- `users(public_id)`
+- `users(email)`
+- `roles(code)`
+- `user_roles(user_id, deleted_at)`
+- `refresh_tokens(token_hash)`
+- `refresh_tokens(user_id, revoked_at)`
+- `refresh_tokens(expires_at)`
 - `queue_tickets(facility_id, status, checked_in_at)`
 - `notification_messages(status, scheduled_at)`
 
@@ -303,8 +415,9 @@ Kiểm soát nhất quán:
 ## 9. Migration strategy
 - Dùng Flyway hoặc Liquibase cho từng service.
 - Version migration độc lập theo service, ví dụ:
-- `V1__init_identity.sql`
-- `V1__init_patient.sql`
+- `identity-service/src/main/resources/db/migration/V1__init.sql`
+- `identity-service/src/main/resources/db/migration/V2__add_doctor_role.sql`
+- `patient-service/src/main/resources/db/migration/V1__init.sql`
 - `V2__add_partial_index_appointment.sql`
 - Không sửa migration đã chạy production; chỉ thêm migration mới.
 
