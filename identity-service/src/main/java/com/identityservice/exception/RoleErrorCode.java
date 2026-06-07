@@ -16,14 +16,14 @@ public enum RoleErrorCode implements BaseErrorCode {
             "urn:problem:role-not-found",
             "Role not found",
             HttpStatus.NOT_FOUND,
-            "Khong tim thay vai tro"
+            "Không tìm thấy vai trò với ID hoặc tên đã cho"
     ),
     ROLE_ALREADY_ASSIGNED(
             "ROLE_ALREADY_ASSIGNED",
             "urn:problem:role-already-assigned",
             "Role already assigned",
             HttpStatus.CONFLICT,
-            "Vai tro da duoc gan cho nguoi dung"
+            "Vai trò đã được gán cho người dùng này"
     );
 
     private final String code;

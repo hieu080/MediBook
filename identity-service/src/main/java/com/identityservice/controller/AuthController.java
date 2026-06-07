@@ -4,7 +4,7 @@ import com.identityservice.dto.request.LoginRequest;
 import com.identityservice.dto.request.RefreshTokenRequest;
 import com.identityservice.dto.request.RegisterRequest;
 import com.identityservice.dto.response.AuthResponse;
-import com.identityservice.dto.response.UserResponse;
+import com.identityservice.dto.response.UserPrivateResponse;
 import com.identityservice.service.AuthService;
 import com.sharekernel.response.ApiResponse;
 import com.sharekernel.web.RequestContextUtils;
@@ -32,10 +32,9 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ApiResponse<UserResponse> register(@Valid @RequestBody RegisterRequest request,
-                                              @RequestHeader(value = "User-Agent", required = false) String userAgent,
+    public ApiResponse<UserPrivateResponse> register(@Valid @RequestBody RegisterRequest request,
                                               HttpServletRequest httpServletRequest) {
-        UserResponse response = authService.register(request);
+        UserPrivateResponse response = authService.register(request);
         return ApiResponse.success(response, "Đăng ký thành công", RequestContextUtils.getRequestId(httpServletRequest));
     }
 

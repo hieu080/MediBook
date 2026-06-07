@@ -177,6 +177,7 @@ services:
       DB_HOST: postgres-patient
       DB_PORT: 5432
       DB_NAME: medibook_patient_db
+      IDENTITY_SERVICE_HOST: identity-service
     depends_on:
       - postgres-patient
     ports:

@@ -2,10 +2,8 @@ package com.identityservice.mapper;
 
 import com.identityservice.dto.response.AuthResponse;
 import com.identityservice.dto.response.JwtTokenResponse;
-import com.identityservice.entity.User;
+import com.identityservice.dto.response.UserPrivateResponse;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 /**
  * Mapper chuyển đổi dữ liệu xác thực giữa token payload và DTO phản hồi.
@@ -25,13 +23,10 @@ public class AuthMapper {
                 .build();
     }
 
-    public AuthResponse toAuthResponse(User user, List<String> roles, JwtTokenResponse tokenResponse) {
+    public AuthResponse toAuthResponse(UserPrivateResponse user, JwtTokenResponse tokenResponse) {
         return AuthResponse.builder()
                 .token(tokenResponse)
-                .publicId(user.getPublicId())
-                .fullName(user.getFullName())
-                .email(user.getEmail())
-                .roles(roles)
+                .user(user)
                 .build();
     }
 }

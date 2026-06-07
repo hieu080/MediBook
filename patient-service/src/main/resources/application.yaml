@@ -3,6 +3,11 @@ spring:
     name: patient-service
   profiles:
     active: local
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${JWT_JWK_SET_URI:http://${IDENTITY_SERVICE_HOST:localhost}:8081/api/v1/auth/.well-known/jwks.json}
 
 server:
   port: 8082

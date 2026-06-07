@@ -1,12 +1,15 @@
 package com.identityservice.mapper;
 
 import com.identityservice.dto.request.RegisterRequest;
-import com.identityservice.dto.response.UserResponse;
+import com.identityservice.dto.response.UserAdminResponse;
+import com.identityservice.dto.response.UserBasicResponse;
+import com.identityservice.dto.response.UserPrivateResponse;
 import com.identityservice.entity.User;
 import com.identityservice.enums.UserStatus;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -38,15 +41,40 @@ public class UserMapper {
                 .build();
     }
 
-    public UserResponse toResponse(User user) {
-        return UserResponse.builder()
+    public UserBasicResponse toBasicResponse(User user, List<String> roles) {
+        return UserBasicResponse.builder()
+                .publicId(user.getPublicId())
+                .fullName(user.getFullName())
+                .status(user.getStatus())
+                .roles(roles)
+                .build();
+    }
+
+    public UserPrivateResponse toPrivateResponse(User user, List<String> roles) {
+        return UserPrivateResponse.builder()
                 .publicId(user.getPublicId())
                 .fullName(user.getFullName())
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
                 .status(user.getStatus())
+                .roles(roles)
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
+                .build();
+    }
+
+    public UserAdminResponse toAdminResponse(User user, List<String> roles) {
+        return UserAdminResponse.builder()
+                .id(user.getId())
+                .publicId(user.getPublicId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .status(user.getStatus())
+                .roles(roles)
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .deletedAt(user.getDeletedAt())
                 .build();
     }
 }

@@ -21,6 +21,14 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
+/**
+ * Cung cấp cặp khóa RSA cho JWT, hỗ trợ cấu hình qua PEM hoặc tệp, và tạo khóa phát triển nếu không có cấu hình.
+ *
+ * @author anhdvv
+ * @since 2026-06
+ * @version 1.0
+ */
+
 @Component
 @Getter
 public class JwtKeyProvider {
