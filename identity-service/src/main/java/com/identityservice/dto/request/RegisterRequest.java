@@ -30,7 +30,14 @@ public class RegisterRequest {
     @NotBlank(message = "Email không được để trống")
     private String email;
 
+    @Size(max = 20, message = "Số điện thoại không được vượt quá 20 ký tự")
+    private String phoneNumber;
+
     @NotBlank(message = "Mật khẩu không được để trống")
     @Size(min = 8, message = "Mật khẩu phải có ít nhất 8 ký tự")
     private String password;
+
+    @NotBlank(message = "Mật khẩu nhập lại không được để trống")
+    @Size(min = 8, message = "Mật khẩu nhập lại phải có ít nhất 8 ký tự")
+    private String rePassword;
 }

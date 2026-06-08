@@ -34,11 +34,16 @@ public class UserMapper {
                 .publicId(publicId)
                 .fullName(request.getFullName())
                 .email(request.getEmail())
+                .phoneNumber(normalizeOptionalText(request.getPhoneNumber()))
                 .passwordHash(passwordHash)
                 .status(status)
                 .createdAt(createdAt)
                 .updatedAt(updatedAt)
                 .build();
+    }
+
+    private String normalizeOptionalText(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
     }
 
     public UserBasicResponse toBasicResponse(User user, List<String> roles) {

@@ -44,9 +44,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserPrivateResponse createUser(RegisterRequest request) {
-        if (userRepository.existsByEmailAndDeletedAtIsNull(request.getEmail())) {
-            throw new IdentityException(UserErrorCode.USER_ALREADY_EXISTS);
-        }
+        validateRegisterRequest(request);
 
         LocalDateTime now = LocalDateTime.now();
         User user = userMapper.toEntity(
@@ -129,6 +127,17 @@ public class UserServiceImpl implements UserService {
                 .map(userRole -> userRole.getRole().getCode())
                 .toList();
         return userMapper.toAdminResponse(user, roles);
+    }
+
+
+    private void validateRegisterRequest(RegisterRequest request) {
+        if (!request.getPassword().equals(request.getRePassword())) {
+            throw new IdentityException(UserErrorCode.PASSWORD_CONFIRMATION_MISMATCH);
+        }
+
+        if (userRepository.existsByEmailAndDeletedAtIsNull(request.getEmail())) {
+            throw new IdentityException(UserErrorCode.USER_ALREADY_EXISTS);
+        }
     }
 
     private void assignDefaultPatientRole(User user, LocalDateTime createdAt) {
