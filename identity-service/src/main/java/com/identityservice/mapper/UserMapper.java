@@ -55,7 +55,7 @@ public class UserMapper {
                 .build();
     }
 
-    public UserPrivateResponse toPrivateResponse(User user, List<String> roles) {
+    public UserPrivateResponse toPrivateResponse(User user, List<String> roles, String defaultRole) {
         return UserPrivateResponse.builder()
                 .publicId(user.getPublicId())
                 .fullName(user.getFullName())
@@ -63,6 +63,7 @@ public class UserMapper {
                 .phoneNumber(user.getPhoneNumber())
                 .status(user.getStatus())
                 .roles(roles)
+                .defaultRole(defaultRole)
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();

@@ -8,6 +8,7 @@ import com.identityservice.dto.response.JwtTokenResponse;
 import com.identityservice.dto.response.UserPrivateResponse;
 import com.identityservice.entity.RefreshToken;
 import com.identityservice.entity.User;
+import com.identityservice.entity.UserRole;
 import com.identityservice.enums.UserStatus;
 import com.identityservice.exception.AuthErrorCode;
 import com.identityservice.exception.IdentityException;
@@ -55,7 +56,8 @@ public class AuthServiceImpl implements AuthService {
         UserPrivateResponse createdUser = userService.createUser(request);
         User user = userRepository.findByPublicIdAndDeletedAtIsNull(createdUser.getPublicId())
                 .orElseThrow(() -> new IdentityException(UserErrorCode.USER_NOT_FOUND));
-        return userMapper.toPrivateResponse(user, loadRoleCodes(user));
+        List<UserRole> userRoles = loadUserRoles(user);
+        return userMapper.toPrivateResponse(user, toRoleCodes(userRoles), resolveDefaultRoleCode(userRoles));
     }
 
     @Override
@@ -68,7 +70,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         validateUserStatus(user);
-        return buildAuthResponse(user, loadRoleCodes(user), deviceInfo, ipAddress);
+        return buildAuthResponse(user, loadUserRoles(user), deviceInfo, ipAddress);
     }
 
     @Override
@@ -77,7 +79,7 @@ public class AuthServiceImpl implements AuthService {
         User user = storedRefreshToken.getUser();
         validateUserStatus(user);
         refreshTokenService.revokeRefreshToken(request.getRefreshToken());
-        return buildAuthResponse(user, loadRoleCodes(user), deviceInfo, ipAddress);
+        return buildAuthResponse(user, loadUserRoles(user), deviceInfo, ipAddress);
     }
 
     @Override
@@ -92,26 +94,40 @@ public class AuthServiceImpl implements AuthService {
         refreshTokenService.revokeAllByUser(user);
     }
 
-    private AuthResponse buildAuthResponse(User user, List<String> roles, String deviceInfo, String ipAddress) {
+    private AuthResponse buildAuthResponse(User user, List<UserRole> userRoles, String deviceInfo, String ipAddress) {
         String refreshToken = refreshTokenService.createRefreshToken(user, deviceInfo, ipAddress);
-        return buildAuthResponse(user, roles, refreshToken);
+        return buildAuthResponse(user, userRoles, refreshToken);
     }
 
-    private AuthResponse buildAuthResponse(User user, List<String> roles, String refreshToken) {
+    private AuthResponse buildAuthResponse(User user, List<UserRole> userRoles, String refreshToken) {
+        List<String> roles = toRoleCodes(userRoles);
+        String defaultRole = resolveDefaultRoleCode(userRoles);
         String accessToken = jwtService.generateAccessToken(user, roles);
         JwtTokenResponse jwtTokenResponse = authMapper.toJWTTokenResponse(
                 accessToken,
                 refreshToken,
                 jwtService.getAccessTokenExpiration()
         );
-        return authMapper.toAuthResponse(userMapper.toPrivateResponse(user, roles), jwtTokenResponse);
+        return authMapper.toAuthResponse(userMapper.toPrivateResponse(user, roles, defaultRole), jwtTokenResponse);
     }
 
-    private List<String> loadRoleCodes(User user) {
-        return userRoleRepository.findAllByUserAndDeletedAtIsNull(user)
-                .stream()
+    private List<UserRole> loadUserRoles(User user) {
+        return userRoleRepository.findAllByUserAndDeletedAtIsNull(user);
+    }
+
+    private List<String> toRoleCodes(List<UserRole> userRoles) {
+        return userRoles.stream()
                 .map(userRole -> userRole.getRole().getCode())
                 .toList();
+    }
+
+    private String resolveDefaultRoleCode(List<UserRole> userRoles) {
+        return userRoles.stream()
+                .filter(UserRole::isDefaultRole)
+                .findFirst()
+                .or(() -> userRoles.stream().findFirst())
+                .map(userRole -> userRole.getRole().getCode())
+                .orElse(null);
     }
 
     private void validateUserStatus(User user) {
