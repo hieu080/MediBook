@@ -1,5 +1,6 @@
 package com.identityservice.service;
 
+import com.identityservice.dto.request.ChangeDefaultRoleRequest;
 import com.identityservice.dto.request.LoginRequest;
 import com.identityservice.dto.request.RefreshTokenRequest;
 import com.identityservice.dto.request.RegisterRequest;
@@ -19,4 +20,5 @@ public interface AuthService {
     AuthResponse refreshToken(RefreshTokenRequest request, String deviceInfo, String ipAddress);
     void logout(RefreshTokenRequest request);
     void logoutAll();
+    UserPrivateResponse changeDefaultRole(ChangeDefaultRoleRequest request);
 }

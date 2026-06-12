@@ -1,5 +1,6 @@
 package com.identityservice.service.impl;
 
+import com.identityservice.dto.request.ChangeDefaultRoleRequest;
 import com.identityservice.dto.request.LoginRequest;
 import com.identityservice.dto.request.RefreshTokenRequest;
 import com.identityservice.dto.request.RegisterRequest;
@@ -12,6 +13,7 @@ import com.identityservice.entity.UserRole;
 import com.identityservice.enums.UserStatus;
 import com.identityservice.exception.AuthErrorCode;
 import com.identityservice.exception.IdentityException;
+import com.identityservice.exception.RoleErrorCode;
 import com.identityservice.exception.UserErrorCode;
 import com.identityservice.mapper.AuthMapper;
 import com.identityservice.mapper.UserMapper;
@@ -92,6 +94,25 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByIdAndDeletedAtIsNull(currentUserFacade.getCurrentUserId())
                 .orElseThrow(() -> new IdentityException(UserErrorCode.USER_NOT_FOUND));
         refreshTokenService.revokeAllByUser(user);
+    }
+
+    @Override
+    public UserPrivateResponse changeDefaultRole(ChangeDefaultRoleRequest request) {
+        User user = userRepository.findByIdAndDeletedAtIsNull(currentUserFacade.getCurrentUserId())
+                .orElseThrow(() -> new IdentityException(UserErrorCode.USER_NOT_FOUND));
+        List<UserRole> userRoles = loadUserRoles(user);
+        String requestedRole = request.getRole().trim().toUpperCase();
+        UserRole newDefaultRole = userRoles.stream()
+                .filter(userRole -> userRole.getRole().getCode().equals(requestedRole))
+                .findFirst()
+                .orElseThrow(() -> new IdentityException(RoleErrorCode.ROLE_NOT_ASSIGNED));
+
+        userRoles.forEach(userRole -> userRole.setDefaultRole(false));
+        newDefaultRole.setDefaultRole(true);
+        userRoleRepository.saveAll(userRoles);
+
+        List<UserRole> updatedUserRoles = loadUserRoles(user);
+        return userMapper.toPrivateResponse(user, toRoleCodes(updatedUserRoles), resolveDefaultRoleCode(updatedUserRoles));
     }
 
     private AuthResponse buildAuthResponse(User user, List<UserRole> userRoles, String deviceInfo, String ipAddress) {

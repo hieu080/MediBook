@@ -24,6 +24,13 @@ public enum RoleErrorCode implements BaseErrorCode {
             "Role already assigned",
             HttpStatus.CONFLICT,
             "Vai trò đã được gán cho người dùng này"
+    ),
+    ROLE_NOT_ASSIGNED(
+            "ROLE_NOT_ASSIGNED",
+            "urn:problem:role-not-assigned",
+            "Role not assigned",
+            HttpStatus.FORBIDDEN,
+            "Người dùng hiện tại chưa được gán vai trò này"
     );
 
     private final String code;

@@ -1,5 +1,6 @@
 package com.identityservice.controller;
 
+import com.identityservice.dto.request.ChangeDefaultRoleRequest;
 import com.identityservice.dto.request.LoginRequest;
 import com.identityservice.dto.request.RefreshTokenRequest;
 import com.identityservice.dto.request.RegisterRequest;
@@ -65,5 +66,12 @@ public class AuthController {
     public ApiResponse<String> logoutAll(HttpServletRequest httpServletRequest) {
         authService.logoutAll();
         return ApiResponse.success("OK", "Đăng xuất tất cả phiên thành công", RequestContextUtils.getRequestId(httpServletRequest));
+    }
+
+    @PostMapping("/default-role")
+    public ApiResponse<UserPrivateResponse> changeDefaultRole(@Valid @RequestBody ChangeDefaultRoleRequest request,
+                                                              HttpServletRequest httpServletRequest) {
+        UserPrivateResponse response = authService.changeDefaultRole(request);
+        return ApiResponse.success(response, "Cập nhật vai trò mặc định thành công", RequestContextUtils.getRequestId(httpServletRequest));
     }
 }
