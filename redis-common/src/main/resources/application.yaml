@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: redis-common
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: 6379
+      timeout: 3000ms
+      jedis:
+        pool:
+          max-active: 100
+          max-idle: 20
+          min-idle: 5
