@@ -21,7 +21,7 @@ Ngay cap nhat gan nhat: 2026-06-24.
 ## 2. Tong Quan Trang Thai Service
 | Service | Trang thai | Da co | Chua hoan thien / Note |
 | --- | --- | --- | --- |
-| api-gateway | PARTIAL | Gateway app, Spring Security resource server, route identity, JWKS config | Route cac service khac chua theo chuan /api/v1; chua chan /internal/v1 ro rang; chua co rate limit; chua co correlation-id filter rieng gateway |
+| api-gateway | PARTIAL | Gateway app, Spring Security resource server, route identity, JWKS config; route service Phase 1 da doi theo public prefix /api/v1; contract da chot internal prefix /internal/v1 | Chua chan /internal/v1 ro rang; chua co rate limit; chua co correlation-id filter rieng gateway; cac service downstream chua co API tuong ung |
 | identity-service | PARTIAL | Auth API, User API, JWKS API, JWT RS256, refresh token, role/default role, Flyway V1-V3 | Can bo sung test nghiep vu; logout-all/default-role dang dung POST thay vi PATCH nhu contract; /users/me hien yeu cau PATIENT nen user role khac co the bi chan; chua co admin API gan role |
 | patient-service | PARTIAL | Entity, DTO, mapper, exception, security, migration V1 cho patients va patient_relationships | Chua co controller; repository dang trong; service interface/impl dang trong; PatientServiceImpl chua implements PatientService; typo PatientRelatioshipRepository; chua co CRUD/authorization relationship |
 | doctor-schedule-service | TODO | Application scaffold, config local DB | Chua co migration, entity, repository, service, controller, slot generation, reserve/book/release |
@@ -51,7 +51,7 @@ Ngay cap nhat gan nhat: 2026-06-24.
 | UC-13 | Huy Lich Hen | appointment-service | TODO | Chua co | Chua co | Chua co | Can cancel idempotency, release slot, optional refund event |
 | UC-14 | Notification Khi Lich Thay Doi | notification-service | TODO | Chua co | Chua co | Chua co | Can consume appointment event, retry, dedupe |
 | UC-15 | Outbox Event Cho Appointment | appointment-service | TODO | Chua co | Chua co | Chua co | Can outbox_events va publisher |
-| UC-16 | Gateway Routing Va Security Boundary | api-gateway | PARTIAL | Co route identity va route service khac | N/A | Chua co contract test | Route non-identity chua theo /api/v1; chua chan internal endpoints; chua co route cho /api/v1/patients/** |
+| UC-16 | Gateway Routing Va Security Boundary | api-gateway | PARTIAL | Co route identity va route service khac theo /api/v1 | N/A | Chua co contract test | API prefix da chot: public /api/v1, internal /internal/v1. Route prefix da cap nhat; chua chan internal endpoints; downstream service chua co API tuong ung |
 | UC-17 | Observability Cho Luong Booking | share-kernel/cross-service | PARTIAL | N/A | N/A | Chua co | Co RequestContextUtils/RequestIdFilter nhung chua xac minh tat ca service dung; chua co event correlationId |
 | UC-18 | Le Tan Quan Ly Lich Trong Ngay | appointment-service | TODO | Chua co | Chua co | Chua co | Can receptionist query va confirm transition |
 
@@ -77,14 +77,14 @@ Ngay cap nhat gan nhat: 2026-06-24.
 | --- | --- | --- | --- |
 | /api/v1/auth/** -> identity-service | PARTIAL | UC-16 | Hoat dong theo config; can dam bao public/protected matcher chinh xac |
 | /api/v1/users/** -> identity-service | PARTIAL | UC-16 | Hoat dong theo config; all protected tru public matcher |
-| /api/patient/** -> patient-service | TODO | UC-16 | Sai prefix so voi contract; can doi thanh /api/v1/patients/** |
-| /api/schedule/** -> doctor-schedule-service | TODO | UC-16 | Sai prefix so voi contract; can doi thanh /api/v1/schedules/**, /api/v1/doctors/**, /api/v1/facilities/**, /api/v1/specialties/** |
-| /api/appointment/** -> appointment-service | TODO | UC-16 | Sai prefix so voi contract; can doi thanh /api/v1/appointments/** va /api/v1/reception/** |
-| /api/payment/** -> payment-service | TODO | UC-16 | Sai prefix so voi contract; can doi thanh /api/v1/payments/** |
-| /api/notification/** -> notification-service | TODO | UC-16 | Chua co API Phase 1 public ro rang |
-| /api/queue/** -> queue-service | N/A | Phase 2 | Ngoai scope Phase 1 |
-| /api/reporting/** -> reporting-service | N/A | Phase 2 | Ngoai scope Phase 1 |
-| /api/audit/** -> audit-service | N/A | Phase 2 | Ngoai scope Phase 1 |
+| /api/v1/patients/** -> patient-service | PARTIAL | UC-16 | Gateway route da dung prefix; patient-service chua co controller API |
+| /api/v1/facilities/**, /api/v1/specialties/**, /api/v1/doctors/**, /api/v1/schedules/** -> doctor-schedule-service | PARTIAL | UC-16 | Gateway route da dung prefix; doctor-schedule-service chua co controller API |
+| /api/v1/appointments/**, /api/v1/reception/** -> appointment-service | PARTIAL | UC-16 | Gateway route da dung prefix; appointment-service chua co controller API |
+| /api/v1/payments/** -> payment-service | PARTIAL | UC-16 | Gateway route da dung prefix; payment-service chua co controller API |
+| /api/v1/notifications/** -> notification-service | PARTIAL | UC-16 | Gateway route da dung prefix; notification-service chua co controller API |
+| /api/v1/queue/** -> queue-service | N/A | Phase 2 | Route scaffold dung prefix nhung ngoai scope Phase 1 |
+| /api/v1/reports/** -> reporting-service | N/A | Phase 2 | Route scaffold dung prefix nhung ngoai scope Phase 1 |
+| /api/v1/audit/** -> audit-service | N/A | Phase 2 | Route scaffold dung prefix nhung ngoai scope Phase 1 |
 
 ### 4.3 patient-service
 | API theo contract | Trang thai | Use case | Note |
