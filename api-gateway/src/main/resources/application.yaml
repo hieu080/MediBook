@@ -18,35 +18,35 @@ spring:
         - id: patient-service
           uri: http://${PATIENT_SERVICE_HOST:localhost}:8082
           predicates:
-            - Path=/api/patient/**
+            - Path=/api/v1/patients/**
         - id: doctor-schedule-service
           uri: http://${DOCTOR_SCHEDULE_SERVICE_HOST:localhost}:8083
           predicates:
-            - Path=/api/schedule/**
+            - Path=/api/v1/facilities/**,/api/v1/specialties/**,/api/v1/doctors/**,/api/v1/schedules/**
         - id: appointment-service
           uri: http://${APPOINTMENT_SERVICE_HOST:localhost}:8084
           predicates:
-            - Path=/api/appointment/**
+            - Path=/api/v1/appointments/**,/api/v1/reception/**
         - id: payment-service
           uri: http://${PAYMENT_SERVICE_HOST:localhost}:8085
           predicates:
-            - Path=/api/payment/**
+            - Path=/api/v1/payments/**
         - id: queue-service
           uri: http://${QUEUE_SERVICE_HOST:localhost}:8086
           predicates:
-            - Path=/api/queue/**
+            - Path=/api/v1/queue/**
         - id: notification-service
           uri: http://${NOTIFICATION_SERVICE_HOST:localhost}:8087
           predicates:
-            - Path=/api/notification/**
+            - Path=/api/v1/notifications/**
         - id: reporting-service
           uri: http://${REPORTING_SERVICE_HOST:localhost}:8088
           predicates:
-            - Path=/api/reporting/**
+            - Path=/api/v1/reports/**
         - id: audit-service
           uri: http://${AUDIT_SERVICE_HOST:localhost}:8089
           predicates:
-            - Path=/api/audit/**
+            - Path=/api/v1/audit/**
 
 management:
   endpoints:

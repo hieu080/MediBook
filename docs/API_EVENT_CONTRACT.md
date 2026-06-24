@@ -4,13 +4,48 @@
 Tai lieu nay chot cac contract nen thong nhat truoc khi nhieu nguoi trien khai song song. Day khong phai OpenAPI day du, ma la baseline ve URI, claims, status, event va error code.
 
 ## 2. API Convention
-- Public API version: /api/v1.
-- Internal API version: /internal/v1.
+- Public/client API version: `/api/v1`.
+- Internal service-to-service API version: `/internal/v1`.
 - JSON UTF-8.
 - UUID dung cho public identifier giua service.
 - Command quan trong nen ho tro Idempotency-Key.
 - Protected API yeu cau Authorization: Bearer <access_token>.
 - Moi request nen co X-Request-Id. Neu client khong gui, gateway tao moi.
+
+## 2.1 API Prefix Decision
+Quyet dinh chinh thuc cho MediBook:
+
+| Loai API | Prefix | Ai duoc goi | Gateway expose | Vi du |
+| --- | --- | --- | --- | --- |
+| Public/client API | `/api/v1` | Frontend, mobile, portal noi bo | Co | `/api/v1/auth/login`, `/api/v1/patients/me`, `/api/v1/appointments` |
+| Internal API | `/internal/v1` | Service noi bo goi nhau | Khong | `/internal/v1/slots/{slotId}/reserve` |
+| Actuator/health | `/actuator` | Infra/devops | Chi expose endpoint can thiet | `/actuator/health` |
+
+Quy tac bat buoc:
+- Tat ca API cho frontend phai bat dau bang `/api/v1`.
+- Tat ca API service-to-service khong danh cho frontend phai bat dau bang `/internal/v1`.
+- `api-gateway` khong route public cho `/internal/v1/**`.
+- Khong dung cac prefix cu: `/api/patient/**`, `/api/schedule/**`, `/api/appointment/**`, `/api/payment/**`, `/api/notification/**`.
+- Neu them API moi, phai cap nhat tai lieu nay va `docs/PROJECT_PROGRESS_CHECKLIST.md` neu anh huong tien do.
+
+Quy tac versioning:
+- Phase 1 chi expose `/api/v1` qua gateway.
+- Khong cau hinh wildcard version nhu `/api/v*` de tranh expose version chua duoc thiet ke/test.
+- Khi co `/api/v2`, phai them route explicit cho `/api/v2/**` va cap nhat contract/checklist.
+- Version moi khong duoc pha vo contract cua version cu neu version cu van duoc support.
+- `/api/v1` va `/api/v2` co the route cung service hoac khac service tuy muc do breaking change.
+- Frontend chi duoc goi version da duoc document trong tai lieu nay.
+
+Mapping prefix theo service Phase 1:
+
+| Service | Public/client prefixes | Internal prefixes |
+| --- | --- | --- |
+| identity-service | `/api/v1/auth/**`, `/api/v1/users/**` | Chua can |
+| patient-service | `/api/v1/patients/**` | Chua can |
+| doctor-schedule-service | `/api/v1/facilities/**`, `/api/v1/specialties/**`, `/api/v1/doctors/**`, `/api/v1/schedules/**` | `/internal/v1/slots/**` |
+| appointment-service | `/api/v1/appointments/**`, `/api/v1/reception/**` | `/internal/v1/appointments/**` neu dung REST internal |
+| payment-service | `/api/v1/payments/**` | Chua can |
+| notification-service | `/api/v1/notifications/**` neu can admin/read API | `/internal/v1/notifications/**` |
 
 ## 3. Common Response
 Thanh cong:
