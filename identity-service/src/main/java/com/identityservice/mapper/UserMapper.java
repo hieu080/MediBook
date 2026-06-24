@@ -34,11 +34,16 @@ public class UserMapper {
                 .publicId(publicId)
                 .fullName(request.getFullName())
                 .email(request.getEmail())
+                .phoneNumber(normalizeOptionalText(request.getPhoneNumber()))
                 .passwordHash(passwordHash)
                 .status(status)
                 .createdAt(createdAt)
                 .updatedAt(updatedAt)
                 .build();
+    }
+
+    private String normalizeOptionalText(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
     }
 
     public UserBasicResponse toBasicResponse(User user, List<String> roles) {
@@ -50,7 +55,7 @@ public class UserMapper {
                 .build();
     }
 
-    public UserPrivateResponse toPrivateResponse(User user, List<String> roles) {
+    public UserPrivateResponse toPrivateResponse(User user, List<String> roles, String defaultRole) {
         return UserPrivateResponse.builder()
                 .publicId(user.getPublicId())
                 .fullName(user.getFullName())
@@ -58,6 +63,7 @@ public class UserMapper {
                 .phoneNumber(user.getPhoneNumber())
                 .status(user.getStatus())
                 .roles(roles)
+                .defaultRole(defaultRole)
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();

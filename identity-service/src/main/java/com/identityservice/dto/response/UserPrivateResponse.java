@@ -24,6 +24,7 @@ public class UserPrivateResponse {
     private String phoneNumber;
     private UserStatus status;
     private List<String> roles;
+    private String defaultRole;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

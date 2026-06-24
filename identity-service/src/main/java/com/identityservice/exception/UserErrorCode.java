@@ -18,6 +18,13 @@ public enum UserErrorCode implements BaseErrorCode {
             HttpStatus.CONFLICT,
             "Người dùng đã tồn tại"
     ),
+    PASSWORD_CONFIRMATION_MISMATCH(
+            "PASSWORD_CONFIRMATION_MISMATCH",
+            "urn:problem:password-confirmation-mismatch",
+            "Password confirmation mismatch",
+            HttpStatus.BAD_REQUEST,
+            "Mật khẩu nhập lại không khớp"
+    ),
     USER_NOT_FOUND(
             "USER_NOT_FOUND",
             "urn:problem:user-not-found",
