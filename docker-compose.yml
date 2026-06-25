@@ -8,11 +8,49 @@ x-service-db-env: &service-db-env
   DB_SCHEMA: public
 
 services:
-  redis:
+  redis-node-1:
     image: redis:7-alpine
-    container_name: medibook-redis
+    container_name: medibook-redis-1
+    command: redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
     ports:
       - "6379:6379"
+      - "16379:16379"
+    volumes:
+      - redis_node_1_data:/data
+
+  redis-node-2:
+    image: redis:7-alpine
+    container_name: medibook-redis-2
+    command: redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
+    ports:
+      - "6380:6379"
+      - "16380:16379"
+    volumes:
+      - redis_node_2_data:/data
+
+  redis-node-3:
+    image: redis:7-alpine
+    container_name: medibook-redis-3
+    command: redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
+    ports:
+      - "6381:6379"
+      - "16381:16379"
+    volumes:
+      - redis_node_3_data:/data
+
+  redis-cluster-init:
+    image: redis:7-alpine
+    container_name: medibook-redis-cluster-init
+    depends_on:
+      - redis-node-1
+      - redis-node-2
+      - redis-node-3
+    command: >
+      sh -c "sleep 5 && redis-cli --cluster create 
+      redis-node-1:6379 
+      redis-node-2:6379 
+      redis-node-3:6379 
+      --cluster-yes"
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -275,6 +313,9 @@ services:
       - "8089:8089"
 
 volumes:
+  redis_node_1_data: #
+  redis_node_2_data:
+  redis_node_3_data:
   pg_identity_data:
   pg_patient_data:
   pg_doctor_schedule_data:

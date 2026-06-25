@@ -24,6 +24,7 @@
         <module>reporting-service</module>
         <module>audit-service</module>
         <module>share-kernel</module>
+        <module>redis-common</module>
     </modules>
 
     <properties>

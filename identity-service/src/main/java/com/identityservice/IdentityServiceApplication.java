@@ -3,7 +3,7 @@ package com.identityservice;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication(scanBasePackages = {"com.identityservice", "com.sharekernel"})
+@SpringBootApplication(scanBasePackages = {"com.identityservice", "com.sharekernel", "common.rediscommon"})
 public class IdentityServiceApplication {
 
     public static void main(String[] args) {
