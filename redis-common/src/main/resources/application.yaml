@@ -1,13 +1,13 @@
-spring:
-  application:
-    name: redis-common
-  data:
-    redis:
-      host: ${REDIS_HOST:localhost}
-      port: 6379
-      timeout: 3000ms
-      jedis:
-        pool:
-          max-active: 100
-          max-idle: 20
-          min-idle: 5
+redis:
+  cluster:
+    nodes:
+      - redis-node-1:6379
+      - redis-node-2:6379
+      - redis-node-3:6379
+    password:
+    connectionTimeout: 3000
+    soTimeout: 3000
+    maxAttempts: 5
+    maxTotal: 100
+    maxIdle: 20
+    minIdle: 5
