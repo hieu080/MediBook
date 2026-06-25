@@ -41,6 +41,9 @@ public class UserRole {
     @JoinColumn(name = "role_id", nullable = false, foreignKey = @ForeignKey(name = "fk_user_roles_role"))
     private Role role;
 
+    @Column(name = "is_default", nullable = false)
+    private boolean defaultRole;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 

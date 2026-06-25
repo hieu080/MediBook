@@ -6,6 +6,7 @@ import com.identityservice.dto.response.UserBasicResponse;
 import com.identityservice.dto.response.UserPrivateResponse;
 import com.identityservice.entity.Role;
 import com.identityservice.entity.User;
+import com.identityservice.entity.UserRole;
 import com.identityservice.exception.IdentityException;
 import com.identityservice.exception.RoleErrorCode;
 import com.identityservice.exception.UserErrorCode;
@@ -44,9 +45,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserPrivateResponse createUser(RegisterRequest request) {
-        if (userRepository.existsByEmailAndDeletedAtIsNull(request.getEmail())) {
-            throw new IdentityException(UserErrorCode.USER_ALREADY_EXISTS);
-        }
+        validateRegisterRequest(request);
 
         LocalDateTime now = LocalDateTime.now();
         User user = userMapper.toEntity(
@@ -60,12 +59,8 @@ public class UserServiceImpl implements UserService {
         User savedUser = userRepository.save(user);
         assignDefaultPatientRole(savedUser, now);
 
-        List<String> roles = userRoleRepository.findAllByUserAndDeletedAtIsNull(savedUser)
-                .stream()
-                .map(userRole -> userRole.getRole().getCode())
-                .toList();
-
-        return userMapper.toPrivateResponse(savedUser, roles);
+        List<UserRole> userRoles = loadUserRoles(savedUser);
+        return userMapper.toPrivateResponse(savedUser, toRoleCodes(userRoles), resolveDefaultRoleCode(userRoles));
     }
 
     @Override
@@ -73,11 +68,8 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByPublicIdAndDeletedAtIsNull(publicId)
                 .orElseThrow(() -> new IdentityException(UserErrorCode.USER_NOT_FOUND));
 
-        List<String> roles = userRoleRepository.findAllByUserAndDeletedAtIsNull(user)
-                .stream()
-                .map(userRole -> userRole.getRole().getCode())
-                .toList();
-        return userMapper.toBasicResponse(user, roles);
+        List<UserRole> userRoles = loadUserRoles(user);
+        return userMapper.toBasicResponse(user, toRoleCodes(userRoles));
     }
 
     @Override
@@ -85,11 +77,8 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmailAndDeletedAtIsNull(email)
                 .orElseThrow(() -> new IdentityException(UserErrorCode.USER_NOT_FOUND));
 
-        List<String> roles = userRoleRepository.findAllByUserAndDeletedAtIsNull(user)
-                .stream()
-                .map(userRole -> userRole.getRole().getCode())
-                .toList();
-        return userMapper.toBasicResponse(user, roles);
+        List<UserRole> userRoles = loadUserRoles(user);
+        return userMapper.toBasicResponse(user, toRoleCodes(userRoles));
     }
 
     @Override
@@ -100,11 +89,8 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByPublicIdAndDeletedAtIsNull(publicId)
                 .orElseThrow(() -> new IdentityException(UserErrorCode.USER_NOT_FOUND));
 
-        List<String> roles = userRoleRepository.findAllByUserAndDeletedAtIsNull(user)
-                .stream()
-                .map(userRole -> userRole.getRole().getCode())
-                .toList();
-        return userMapper.toPrivateResponse(user, roles);
+        List<UserRole> userRoles = loadUserRoles(user);
+        return userMapper.toPrivateResponse(user, toRoleCodes(userRoles), resolveDefaultRoleCode(userRoles));
     }
 
     @Override
@@ -112,11 +98,8 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByPublicIdAndDeletedAtIsNull(publicId)
                 .orElseThrow(() -> new IdentityException(UserErrorCode.USER_NOT_FOUND));
 
-        List<String> roles = userRoleRepository.findAllByUserAndDeletedAtIsNull(user)
-                .stream()
-                .map(userRole -> userRole.getRole().getCode())
-                .toList();
-        return userMapper.toAdminResponse(user, roles);
+        List<UserRole> userRoles = loadUserRoles(user);
+        return userMapper.toAdminResponse(user, toRoleCodes(userRoles));
     }
 
     @Override
@@ -124,11 +107,39 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmailAndDeletedAtIsNull(email)
                 .orElseThrow(() -> new IdentityException(UserErrorCode.USER_NOT_FOUND));
 
-        List<String> roles = userRoleRepository.findAllByUserAndDeletedAtIsNull(user)
-                .stream()
+        List<UserRole> userRoles = loadUserRoles(user);
+        return userMapper.toAdminResponse(user, toRoleCodes(userRoles));
+    }
+
+
+    private List<UserRole> loadUserRoles(User user) {
+        return userRoleRepository.findAllByUserAndDeletedAtIsNull(user);
+    }
+
+    private List<String> toRoleCodes(List<UserRole> userRoles) {
+        return userRoles.stream()
                 .map(userRole -> userRole.getRole().getCode())
                 .toList();
-        return userMapper.toAdminResponse(user, roles);
+    }
+
+    private String resolveDefaultRoleCode(List<UserRole> userRoles) {
+        return userRoles.stream()
+                .filter(UserRole::isDefaultRole)
+                .findFirst()
+                .or(() -> userRoles.stream().findFirst())
+                .map(userRole -> userRole.getRole().getCode())
+                .orElse(null);
+    }
+
+
+    private void validateRegisterRequest(RegisterRequest request) {
+        if (!request.getPassword().equals(request.getRePassword())) {
+            throw new IdentityException(UserErrorCode.PASSWORD_CONFIRMATION_MISMATCH);
+        }
+
+        if (userRepository.existsByEmailAndDeletedAtIsNull(request.getEmail())) {
+            throw new IdentityException(UserErrorCode.USER_ALREADY_EXISTS);
+        }
     }
 
     private void assignDefaultPatientRole(User user, LocalDateTime createdAt) {
@@ -142,6 +153,7 @@ public class UserServiceImpl implements UserService {
         com.identityservice.entity.UserRole userRole = com.identityservice.entity.UserRole.builder()
                 .user(user)
                 .role(patientRole)
+                .defaultRole(true)
                 .createdAt(createdAt)
                 .build();
         userRoleRepository.save(userRole);

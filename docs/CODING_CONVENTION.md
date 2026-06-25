@@ -114,7 +114,104 @@ src/main/java/com/medibook/<service-name>/
 - PR bị reject nếu tạo constant rải rác ngoài package `constant`.
 - PR bị reject nếu thêm enum/status trực tiếp dạng string hard-code.
 
-## 12. Áp dụng và hiệu lực
+## 12. Quy tắc Git
+### 12.1 Nguyên tắc chung
+- Mỗi commit chỉ nên xử lý một nhóm thay đổi có cùng mục tiêu.
+- Không commit secret, private key, token, password, file `.env`, file `.pem`, dữ liệu cá nhân thật hoặc dữ liệu production.
+- Không commit file build/generated không cần thiết như `target/`, `build/`, `out/`, log runtime hoặc file IDE cá nhân.
+- Trước khi commit phải kiểm tra `git status` và `git diff` để chắc chắn chỉ đưa đúng file cần thiết.
+- Không sửa, format hoặc revert file ngoài phạm vi task nếu không có lý do rõ ràng.
+- Không rewrite history nhánh dùng chung bằng force push nếu chưa được thống nhất.
+
+### 12.2 Quy tắc đặt tên branch
+Format branch:
+
+```text
+<type>/<owner>_<scope>_<short-description>
+```
+
+Trong đó:
+- `type`: `feature`, `fix`, `refactor`, `docs`, `test`, `chore`, `hotfix`.
+- `owner`: tên người làm hoặc mã nhóm, viết lowercase, không dấu.
+- `scope`: epic, use case hoặc service liên quan, ví dụ `uc01`, `uc09`, `identity`, `appointment`.
+- `short-description`: mô tả ngắn bằng kebab-case hoặc snake_case, không dấu.
+
+Ví dụ:
+- `feature/hieu_uc03_patient-profile`
+- `feature/team1_uc09_create-appointment`
+- `fix/anh_identity_refresh-token`
+- `docs/hieu_project-progress-checklist`
+- `refactor/team2_patient-relationship-repository`
+
+### 12.3 Quy tắc commit message
+Format commit:
+
+```text
+<type>: [<scope>] <short summary>
+```
+
+Trong đó:
+- `type`: `feature`, `fix`, `refactor`, `docs`, `test`, `chore`, `config`, `migration`.
+- `scope`: epic/use case/service/module, ví dụ `UC-01`, `UC-09`, `identity-service`, `patient-service`.
+- `short summary`: mô tả ngắn, rõ kết quả thay đổi, có thể dùng tiếng Việt không dấu hoặc tiếng Anh thống nhất theo team.
+
+Ví dụ:
+- `feature: [UC-01] Bo sung API dang nhap va refresh token`
+- `feature: [UC-09] Tao appointment voi idempotency key`
+- `fix: [identity-service] Chan refresh token da bi revoke`
+- `migration: [doctor-schedule-service] Tao bang schedules va slots`
+- `docs: [project] Bo sung checklist tien do use case`
+- `test: [appointment-service] Bo sung test double booking cung slot`
+
+Commit message nen neu ket qua, khong nen ghi chung chung:
+- Nen: `fix: [payment-service] Xu ly callback lap khong doi trang thai SUCCESS`
+- Khong nen: `fix bug`
+- Khong nen: `update code`
+
+### 12.4 Quy tắc Pull Request
+PR title nen theo format:
+
+```text
+<type>: [<scope>] <short summary>
+```
+
+PR description bat buoc co:
+- Muc tieu thay doi.
+- Use case lien quan, ví dụ `UC-03` hoặc `UC-09`.
+- API thay doi, neu co.
+- Migration DB, neu co.
+- Test da chay.
+- Anh huong toi service khac, neu co.
+- Viec chua lam hoặc known limitation, neu co.
+
+Checklist PR:
+- Code dung package convention.
+- Controller khong chua business logic.
+- Service chua business rule va transaction boundary.
+- API co validation request.
+- Endpoint protected co security/authorization phu hop.
+- Error code duoc map ro rang.
+- Migration moi khong sua migration da chay truoc do.
+- Co test cho happy path va loi quan trong.
+- README/docs/API contract/checklist duoc cap nhat neu thay doi behavior hoac endpoint.
+
+### 12.5 Quy tắc migration trong Git
+- Khong sua noi dung migration da merge vao nhánh dùng chung hoặc da chay tren DB cua team.
+- Neu can thay doi schema, tao migration moi theo version tiep theo.
+- Ten migration phai ro nghiep vu:
+- `V1__init.sql`
+- `V2__add_doctor_role.sql`
+- `V3__add_default_role_to_user_roles.sql`
+- `V4__create_slots_table.sql`
+
+### 12.6 Quy tắc review va merge
+- PR phai duoc review truoc khi merge vao nhánh dùng chung.
+- Reviewer uu tien tim loi nghiep vu, loi security, race condition, duplicate data va test thieu.
+- Khong merge khi build/test bat buoc dang fail, tru khi team ghi ro exception.
+- Khong merge code co secret hoac key that.
+- Khong merge thay doi lam sai API contract neu chua cap nhat docs lien quan.
+
+## 13. Áp dụng và hiệu lực
 - Áp dụng cho tất cả service mới từ ngày 2026-06-01.
 - Service cũ phải refactor dần theo từng sprint, ưu tiên module thay đổi nhiều.
 - Mọi exception so với convention phải được thống nhất trong review và ghi chú rõ trong PR.
