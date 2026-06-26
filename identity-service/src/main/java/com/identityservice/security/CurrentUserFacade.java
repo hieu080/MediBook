@@ -40,19 +40,30 @@ public class CurrentUserFacade {
             String publicId = jwt.getClaimAsString("publicId");
             if (publicId != null && !publicId.isBlank()) {
                 return userRepository.findByPublicIdAndDeletedAtIsNull(UUID.fromString(publicId))
-                        .map(user -> CustomUserDetail.builder()
-                                .id(user.getId())
-                                .publicId(user.getPublicId())
-                                .email(user.getEmail())
-                                .fullName(user.getFullName())
-                                .status(user.getStatus())
-                                .authorities(authentication.getAuthorities())
-                                .build())
+                        .map(user -> toCurrentUser(user, authentication))
+                        .orElseThrow(() -> new IdentityException(UserErrorCode.USER_NOT_FOUND));
+            }
+
+            String email = jwt.getClaimAsString("email");
+            if (email != null && !email.isBlank()) {
+                return userRepository.findByEmailAndDeletedAtIsNull(email)
+                        .map(user -> toCurrentUser(user, authentication))
                         .orElseThrow(() -> new IdentityException(UserErrorCode.USER_NOT_FOUND));
             }
         }
 
         throw new IdentityException(AuthErrorCode.AUTHENTICATION_REQUIRED);
+    }
+
+    private CustomUserDetail toCurrentUser(com.identityservice.entity.User user, Authentication authentication) {
+        return CustomUserDetail.builder()
+                .id(user.getId())
+                .publicId(user.getPublicId())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .status(user.getStatus())
+                .authorities(authentication.getAuthorities())
+                .build();
     }
 
     public String getCurrentUserEmail() {

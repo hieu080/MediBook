@@ -505,8 +505,8 @@ Việc cần làm khi service có protected API hoặc internal API:
 - [x] Chuyển `identity-service` thành OAuth2 Resource Server nếu `/api/v1/users/**` cần protected.
 - [x] Sửa `CurrentUserFacade` để đọc principal dạng `Jwt`.
 - [x] Đọc `publicId` từ claim `publicId`.
-- [ ] Đọc `email` từ claim `email`.
-- [ ] Đọc roles từ claim `roles` hoặc Keycloak role structure.
+- [x] Đọc `email` từ claim `email`.
+- [x] Đọc roles từ claim `roles` hoặc Keycloak role structure.
 - [ ] Verify `/api/v1/users/me` chạy với token Keycloak.
 
 ### I. Refactor Patient-Service

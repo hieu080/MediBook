@@ -28,10 +28,9 @@ public class KeycloakAdminClient {
         Map<String, Object> payload = Map.of(
                 "username", user.getEmail(),
                 "email", user.getEmail(),
-                "firstName", user.getFullName(),
                 "enabled", true,
                 "emailVerified", true,
-                "attributes", Map.of("publicId", List.of(user.getPublicId().toString())),
+                "attributes", keycloakAttributes(user),
                 "credentials", List.of(Map.of(
                         "type", "password",
                         "value", password,
@@ -54,11 +53,37 @@ public class KeycloakAdminClient {
             }
             String path = location.getPath();
             String keycloakUserId = path.substring(path.lastIndexOf('/') + 1);
+            updateUserProfile(adminToken.getAccessToken(), keycloakUserId, user);
             assignRealmRoles(adminToken.getAccessToken(), keycloakUserId, roles);
             return keycloakUserId;
         } catch (RestClientException ex) {
             throw new IdentityException(UserErrorCode.USER_ALREADY_EXISTS, "Không thể tạo user trong Keycloak");
         }
+    }
+
+    private void updateUserProfile(String adminAccessToken, String keycloakUserId, User user) {
+        Map<String, Object> payload = Map.of(
+                "username", user.getEmail(),
+                "email", user.getEmail(),
+                "enabled", true,
+                "emailVerified", true,
+                "attributes", keycloakAttributes(user)
+        );
+
+        restClient.put()
+                .uri(adminUsersUri() + "/" + keycloakUserId)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminAccessToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(payload)
+                .retrieve()
+                .toBodilessEntity();
+    }
+
+    private Map<String, List<String>> keycloakAttributes(User user) {
+        return Map.of(
+                "publicId", List.of(user.getPublicId().toString()),
+                "fullName", List.of(user.getFullName())
+        );
     }
 
     public void logoutUserSessions(String keycloakUserId) {
