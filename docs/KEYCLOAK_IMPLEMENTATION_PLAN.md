@@ -511,11 +511,11 @@ Việc cần làm khi service có protected API hoặc internal API:
 
 ### I. Refactor Patient-Service
 
-- [ ] Đổi issuer-uri sang Keycloak.
-- [ ] Kiểm tra token có claim `publicId`.
-- [ ] Kiểm tra token có claim `roles`.
-- [ ] Nếu không có claim `roles`, sửa converter đọc Keycloak `realm_access/resource_access`.
-- [ ] Verify `CurrentUserFacade.getCurrentUserPublicId()` hoạt động.
+- [x] Đổi issuer-uri sang Keycloak.
+- [x] Kiểm tra token có claim `publicId`.
+- [x] Kiểm tra token có claim `roles`.
+- [x] Nếu không có claim `roles`, sửa converter đọc Keycloak `realm_access/resource_access`.
+- [x] Verify `CurrentUserFacade.getCurrentUserPublicId()` hoạt động ở mức code/build.
 - [ ] Verify protected patient endpoint hoạt động với token Keycloak.
 
 ### J. Chuẩn Bị Service-To-Service

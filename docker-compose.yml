@@ -211,7 +211,6 @@ services:
       DB_HOST: postgres-patient
       DB_PORT: 5432
       DB_NAME: medibook_patient_db
-      IDENTITY_SERVICE_HOST: identity-service
       KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/medibook
     depends_on:
       - postgres-patient
