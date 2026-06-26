@@ -7,6 +7,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Component
@@ -22,7 +23,19 @@ public class CurrentUserFacade {
 
     public List<String> getCurrentUserRoles() {
         List<String> roles = getJwt().getClaimAsStringList("roles");
-        return roles == null ? List.of() : roles;
+        if (roles != null) {
+            return roles;
+        }
+
+        Map<String, Object> realmAccess = getJwt().getClaimAsMap("realm_access");
+        if (realmAccess != null && realmAccess.get("roles") instanceof List<?> realmRoles) {
+            return realmRoles.stream()
+                    .filter(String.class::isInstance)
+                    .map(String.class::cast)
+                    .toList();
+        }
+
+        return List.of();
     }
 
     public boolean hasRole(String role) {

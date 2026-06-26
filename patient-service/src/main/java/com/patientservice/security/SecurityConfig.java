@@ -15,6 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -48,16 +49,29 @@ public class SecurityConfig {
     }
 
     private Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
-        List<String> roles = jwt.getClaimAsStringList("roles");
-        if (roles == null) {
-            roles = List.of();
-        }
-
         List<GrantedAuthority> authorities = new ArrayList<>();
+        addRoleAuthorities(authorities, jwt.getClaimAsStringList("roles"));
+
+        Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
+        if (realmAccess != null && realmAccess.get("roles") instanceof Collection<?> realmRoles) {
+            addRoleAuthorities(authorities, realmRoles.stream()
+                    .filter(String.class::isInstance)
+                    .map(String.class::cast)
+                    .toList());
+        }
+        return authorities;
+    }
+
+    private void addRoleAuthorities(List<GrantedAuthority> authorities, Collection<String> roles) {
+        if (roles == null) {
+            return;
+        }
         for (String role : roles) {
+            if (role == null || role.isBlank()) {
+                continue;
+            }
             authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
             authorities.add(new SimpleGrantedAuthority(role));
         }
-        return authorities;
     }
 }
