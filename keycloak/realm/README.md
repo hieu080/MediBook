@@ -163,7 +163,9 @@ jwt.getClaimAsString("publicId")
 
 ## 8. Protocol Mapper `roles`
 
-Mapper `realm roles as roles` đưa realm roles vào claim flat `roles`.
+Mapper `app roles as roles` đưa user attribute `appRoles` vào claim flat `roles`.
+
+Không map trực tiếp realm roles vào claim `roles` vì Keycloak realm roles có cả role kỹ thuật như `default-roles-medibook`, `offline_access`, `uma_authorization`. Claim `roles` của MediBook chỉ chứa role nghiệp vụ từ DB nội bộ, ví dụ `PATIENT`.
 
 Token sẽ có dạng:
 
@@ -181,7 +183,7 @@ Nếu sau này muốn dùng format chuẩn Keycloak, có thể đọc roles từ
 
 ```json
 "realm_access": {
-  "roles": ["PATIENT"]
+  "roles": ["default-roles-medibook", "offline_access", "PATIENT", "uma_authorization"]
 }
 ```
 

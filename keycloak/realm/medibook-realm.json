@@ -2,9 +2,11 @@
   "realm": "medibook",
   "enabled": true,
   "displayName": "MediBook",
-  "accessTokenLifespan": 1800,
+  "accessTokenLifespan": 900,
   "ssoSessionIdleTimeout": 1800,
   "ssoSessionMaxLifespan": 36000,
+  "revokeRefreshToken": true,
+  "refreshTokenMaxReuse": 0,
   "bruteForceProtected": true,
   "failureFactor": 5,
   "userProfileMetadata": {
@@ -138,6 +140,21 @@
           ]
         },
         "multivalued": false
+      },
+      {
+        "name": "appRoles",
+        "displayName": "MediBook application roles",
+        "validations": {},
+        "permissions": {
+          "view": [
+            "admin",
+            "user"
+          ],
+          "edit": [
+            "admin"
+          ]
+        },
+        "multivalued": true
       }
     ],
     "groups": [
@@ -296,11 +313,12 @@
           }
         },
         {
-          "name": "realm roles as roles",
+          "name": "app roles as roles",
           "protocol": "openid-connect",
-          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
           "consentRequired": false,
           "config": {
+            "user.attribute": "appRoles",
             "claim.name": "roles",
             "jsonType.label": "String",
             "multivalued": "true",
@@ -345,11 +363,12 @@
           }
         },
         {
-          "name": "realm roles as roles",
+          "name": "app roles as roles",
           "protocol": "openid-connect",
-          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
           "consentRequired": false,
           "config": {
+            "user.attribute": "appRoles",
             "claim.name": "roles",
             "jsonType.label": "String",
             "multivalued": "true",

@@ -540,16 +540,16 @@ Convention `/internal/**`:
 
 ### K. Hardening Login UI Riêng
 
-- [ ] Không log password.
-- [ ] Không log access token.
-- [ ] Không log refresh token.
-- [ ] Bật brute force detection trong Keycloak realm.
-- [ ] Bật refresh token rotation nếu phù hợp.
-- [ ] Đặt access token TTL ngắn.
-- [ ] Đặt refresh token TTL hợp lý.
+- [x] Không log password.
+- [x] Không log access token.
+- [x] Không log refresh token.
+- [x] Bật brute force detection trong Keycloak realm.
+- [x] Bật refresh token rotation nếu phù hợp.
+- [x] Đặt access token TTL ngắn.
+- [x] Đặt refresh token TTL hợp lý.
 - [ ] Rate limit `/api/v1/auth/login` nếu có gateway/filter hỗ trợ.
-- [ ] FE không đưa token vào URL/query string.
-- [ ] FE hạn chế lưu token ở `localStorage` nếu có thể.
+- [x] FE không đưa token vào URL/query string.
+- [x] FE hạn chế lưu token ở `localStorage` nếu có thể.
 
 ### L. Verification
 
