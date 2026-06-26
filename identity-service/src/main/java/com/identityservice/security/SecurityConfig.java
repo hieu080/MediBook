@@ -12,12 +12,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
  * Cau hinh bao mat cho ung dung, bao gom cac thiet lap lien quan den xac thuc va phan quyen.
  * Lop nay se dinh nghia cac bean can thiet de cau hinh Spring Security, nhu AuthenticationManager,
- * PasswordEncoder, va cac filter lien quan den JWT.
+ * PasswordEncoder va resource server JWT tu Keycloak.
  *
  * @author hieu080
  * @since 2026-06
@@ -28,8 +27,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -52,7 +49,6 @@ public class SecurityConfig {
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/refresh",
                                 "/api/v1/auth/logout",
-                                "/api/v1/auth/.well-known/jwks.json",
                                 "/api/v1/users/public/**",
                                 "/actuator/health",
                                 "/v3/api-docs/**",
@@ -61,7 +57,7 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
                         .anyRequest().authenticated())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {}));
 
         return http.build();
     }

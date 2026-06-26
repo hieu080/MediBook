@@ -228,11 +228,6 @@ services:
       DB_HOST: postgres-identity
       DB_PORT: 5432
       DB_NAME: medibook_identity_db
-      JWT_KEY_ID: identity-service-key
-      JWT_PRIVATE_KEY_PATH: /app/identity-service/keys/jwt-private.pem
-      JWT_PUBLIC_KEY_PATH: /app/identity-service/keys/jwt-public.pem
-      ACCESS_TOKEN_EXPIRE_MILISECONDS: 900000
-      REFRESH_TOKEN_EXPIRE_MILISECONDS: 604800000
       KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/medibook
       KEYCLOAK_TOKEN_URI: http://keycloak:8080/realms/medibook/protocol/openid-connect/token
       KEYCLOAK_LOGOUT_URI: http://keycloak:8080/realms/medibook/protocol/openid-connect/logout
@@ -245,8 +240,6 @@ services:
       - keycloak
     ports:
       - "8081:8081"
-    volumes:
-      - ./identity-service/keys:/app/identity-service/keys
 
   patient-service:
     build: ./patient-service

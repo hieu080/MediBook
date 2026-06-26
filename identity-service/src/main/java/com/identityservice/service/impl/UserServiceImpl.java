@@ -40,6 +40,7 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
     private final UserMapper userMapper;
+    private final CurrentUserFacade currentUserFacade;
 
     @Override
     public UserPrivateResponse createUser(RegisterRequest request) {
@@ -81,7 +82,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserPrivateResponse getMyUserDetail() {
-        CurrentUserFacade currentUserFacade = new CurrentUserFacade();
         UUID publicId = currentUserFacade.getCurrentPublicId();
 
         User user = userRepository.findByPublicIdAndDeletedAtIsNull(publicId)
