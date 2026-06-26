@@ -30,7 +30,7 @@ public class KeycloakAdminClient {
                 "email", user.getEmail(),
                 "enabled", true,
                 "emailVerified", true,
-                "attributes", keycloakAttributes(user),
+                "attributes", keycloakAttributes(user, roles),
                 "credentials", List.of(Map.of(
                         "type", "password",
                         "value", password,
@@ -53,7 +53,7 @@ public class KeycloakAdminClient {
             }
             String path = location.getPath();
             String keycloakUserId = path.substring(path.lastIndexOf('/') + 1);
-            updateUserProfile(adminToken.getAccessToken(), keycloakUserId, user);
+            updateUserProfile(adminToken.getAccessToken(), keycloakUserId, user, roles);
             assignRealmRoles(adminToken.getAccessToken(), keycloakUserId, roles);
             return keycloakUserId;
         } catch (RestClientException ex) {
@@ -61,13 +61,13 @@ public class KeycloakAdminClient {
         }
     }
 
-    private void updateUserProfile(String adminAccessToken, String keycloakUserId, User user) {
+    private void updateUserProfile(String adminAccessToken, String keycloakUserId, User user, List<String> roles) {
         Map<String, Object> payload = Map.of(
                 "username", user.getEmail(),
                 "email", user.getEmail(),
                 "enabled", true,
                 "emailVerified", true,
-                "attributes", keycloakAttributes(user)
+                "attributes", keycloakAttributes(user, roles)
         );
 
         restClient.put()
@@ -79,10 +79,11 @@ public class KeycloakAdminClient {
                 .toBodilessEntity();
     }
 
-    private Map<String, List<String>> keycloakAttributes(User user) {
+    private Map<String, List<String>> keycloakAttributes(User user, List<String> roles) {
         return Map.of(
                 "publicId", List.of(user.getPublicId().toString()),
-                "fullName", List.of(user.getFullName())
+                "fullName", List.of(user.getFullName()),
+                "appRoles", roles
         );
     }
 
