@@ -17,7 +17,6 @@ import com.identityservice.repository.UserRoleRepository;
 import com.identityservice.security.CurrentUserFacade;
 import com.identityservice.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,8 +39,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
-    private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final CurrentUserFacade currentUserFacade;
 
     @Override
     public UserPrivateResponse createUser(RegisterRequest request) {
@@ -50,7 +49,7 @@ public class UserServiceImpl implements UserService {
         LocalDateTime now = LocalDateTime.now();
         User user = userMapper.toEntity(
                 request,
-                passwordEncoder.encode(request.getPassword()),
+                null,
                 UUID.randomUUID(),
                 com.identityservice.enums.UserStatus.ACTIVE,
                 now,
@@ -83,7 +82,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserPrivateResponse getMyUserDetail() {
-        CurrentUserFacade currentUserFacade = new CurrentUserFacade();
         UUID publicId = currentUserFacade.getCurrentPublicId();
 
         User user = userRepository.findByPublicIdAndDeletedAtIsNull(publicId)

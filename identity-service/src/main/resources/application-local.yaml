@@ -16,6 +16,11 @@ spring:
     schemas: ${DB_SCHEMA:public}
     default-schema: ${DB_SCHEMA:public}
     baseline-on-migrate: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8180/realms/medibook}
 
 management:
   endpoints:
@@ -27,18 +32,14 @@ logging:
   level:
     root: INFO
 
-security:
-  jwt:
-    key-id: ${JWT_KEY_ID:identity-service-key}
-    private-key: ${JWT_PRIVATE_KEY:}
-    public-key: ${JWT_PUBLIC_KEY:}
-    private-key-path: ${JWT_PRIVATE_KEY_PATH:keys/jwt-private.pem}
-    public-key-path: ${JWT_PUBLIC_KEY_PATH:keys/jwt-public.pem}
-    access-token-expiration: ${ACCESS_TOKEN_EXPIRE_MILISECONDS:900000}
-    refresh-token-expiration: ${REFRESH_TOKEN_EXPIRE_MILISECONDS:604800000}
-    issuer: ${JWT_ISSUER:identity-service}
-    header-name: Authorization
-    token-prefix: Bearer
+keycloak:
+  issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8180/realms/medibook}
+  token-uri: ${KEYCLOAK_TOKEN_URI:http://localhost:8180/realms/medibook/protocol/openid-connect/token}
+  logout-uri: ${KEYCLOAK_LOGOUT_URI:http://localhost:8180/realms/medibook/protocol/openid-connect/logout}
+  admin-base-url: ${KEYCLOAK_ADMIN_BASE_URL:http://localhost:8180}
+  realm: ${KEYCLOAK_REALM:medibook}
+  client-id: ${KEYCLOAK_CLIENT_ID:identity-service}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET:identity-service-secret}
 
 springdoc:
   api-docs:
