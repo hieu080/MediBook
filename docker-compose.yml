@@ -212,6 +212,9 @@ services:
       DB_PORT: 5432
       DB_NAME: medibook_patient_db
       KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/medibook
+      KEYCLOAK_TOKEN_URI: http://keycloak:8080/realms/medibook/protocol/openid-connect/token
+      SERVICE_CLIENT_ID: patient-service
+      SERVICE_CLIENT_SECRET: patient-service-secret
     depends_on:
       - postgres-patient
     ports:
@@ -225,6 +228,10 @@ services:
       DB_HOST: postgres-doctor-schedule
       DB_PORT: 5432
       DB_NAME: medibook_doctor_schedule_db
+      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/medibook
+      KEYCLOAK_TOKEN_URI: http://keycloak:8080/realms/medibook/protocol/openid-connect/token
+      SERVICE_CLIENT_ID: doctor-schedule-service
+      SERVICE_CLIENT_SECRET: doctor-schedule-service-secret
     depends_on:
       - postgres-doctor-schedule
     ports:
@@ -238,6 +245,10 @@ services:
       DB_HOST: postgres-appointment
       DB_PORT: 5432
       DB_NAME: medibook_appointment_db
+      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/medibook
+      KEYCLOAK_TOKEN_URI: http://keycloak:8080/realms/medibook/protocol/openid-connect/token
+      SERVICE_CLIENT_ID: appointment-service
+      SERVICE_CLIENT_SECRET: appointment-service-secret
     depends_on:
       - postgres-appointment
     ports:
@@ -251,6 +262,10 @@ services:
       DB_HOST: postgres-payment
       DB_PORT: 5432
       DB_NAME: medibook_payment_db
+      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/medibook
+      KEYCLOAK_TOKEN_URI: http://keycloak:8080/realms/medibook/protocol/openid-connect/token
+      SERVICE_CLIENT_ID: payment-service
+      SERVICE_CLIENT_SECRET: payment-service-secret
     depends_on:
       - postgres-payment
     ports:
@@ -264,6 +279,10 @@ services:
       DB_HOST: postgres-queue
       DB_PORT: 5432
       DB_NAME: medibook_queue_db
+      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/medibook
+      KEYCLOAK_TOKEN_URI: http://keycloak:8080/realms/medibook/protocol/openid-connect/token
+      SERVICE_CLIENT_ID: queue-service
+      SERVICE_CLIENT_SECRET: queue-service-secret
     depends_on:
       - postgres-queue
     ports:
@@ -277,6 +296,10 @@ services:
       DB_HOST: postgres-notification
       DB_PORT: 5432
       DB_NAME: medibook_notification_db
+      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/medibook
+      KEYCLOAK_TOKEN_URI: http://keycloak:8080/realms/medibook/protocol/openid-connect/token
+      SERVICE_CLIENT_ID: notification-service
+      SERVICE_CLIENT_SECRET: notification-service-secret
     depends_on:
       - postgres-notification
     ports:
@@ -290,6 +313,10 @@ services:
       DB_HOST: postgres-reporting
       DB_PORT: 5432
       DB_NAME: medibook_reporting_db
+      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/medibook
+      KEYCLOAK_TOKEN_URI: http://keycloak:8080/realms/medibook/protocol/openid-connect/token
+      SERVICE_CLIENT_ID: reporting-service
+      SERVICE_CLIENT_SECRET: reporting-service-secret
     depends_on:
       - postgres-reporting
     ports:
@@ -303,6 +330,10 @@ services:
       DB_HOST: postgres-audit
       DB_PORT: 5432
       DB_NAME: medibook_audit_db
+      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/medibook
+      KEYCLOAK_TOKEN_URI: http://keycloak:8080/realms/medibook/protocol/openid-connect/token
+      SERVICE_CLIENT_ID: audit-service
+      SERVICE_CLIENT_SECRET: audit-service-secret
     depends_on:
       - postgres-audit
     ports:
