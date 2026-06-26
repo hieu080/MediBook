@@ -448,8 +448,8 @@ Việc cần làm khi service có protected API hoặc internal API:
 - [x] Thêm `KEYCLOAK_CLIENT_ID=identity-service` cho `identity-service`.
 - [x] Thêm `KEYCLOAK_CLIENT_SECRET` cho `identity-service`.
 - [x] Thêm `KEYCLOAK_ISSUER_URI` cho `patient-service`.
-- [ ] Bỏ env `JWT_*` khỏi `identity-service` nếu không còn dùng.
-- [ ] Bỏ volume `./identity-service/keys` nếu identity không tự ký JWT nữa.
+- [x] Bỏ env `JWT_*` khỏi `identity-service` nếu không còn dùng.
+- [x] Bỏ volume `./identity-service/keys` nếu identity không tự ký JWT nữa.
 
 ### D. Refactor Gateway
 
@@ -490,21 +490,21 @@ Việc cần làm khi service có protected API hoặc internal API:
 
 ### G. Bỏ JWT Tự Triển Khai Trong Identity-Service
 
-- [ ] Bỏ dùng `JwtService` trong `AuthServiceImpl`.
-- [ ] Bỏ dùng `RefreshTokenService` trong auth flow.
-- [ ] Bỏ `JwtAuthenticationFilter` khỏi `SecurityConfig`.
-- [ ] Bỏ route/controller JWK nội bộ nếu không còn dùng.
-- [ ] Xóa dependency `jjwt-api` khỏi `identity-service/pom.xml`.
-- [ ] Xóa dependency `jjwt-impl` khỏi `identity-service/pom.xml`.
-- [ ] Xóa dependency `jjwt-jackson` khỏi `identity-service/pom.xml`.
-- [ ] Bỏ config `security.jwt.*` khỏi application files.
-- [ ] Build lại identity-service.
+- [x] Bỏ dùng `JwtService` trong `AuthServiceImpl`.
+- [x] Bỏ dùng `RefreshTokenService` trong auth flow.
+- [x] Bỏ `JwtAuthenticationFilter` khỏi `SecurityConfig`.
+- [x] Bỏ route/controller JWK nội bộ nếu không còn dùng.
+- [x] Xóa dependency `jjwt-api` khỏi `identity-service/pom.xml`.
+- [x] Xóa dependency `jjwt-impl` khỏi `identity-service/pom.xml`.
+- [x] Xóa dependency `jjwt-jackson` khỏi `identity-service/pom.xml`.
+- [x] Bỏ config `security.jwt.*` khỏi application files.
+- [x] Build lại identity-service.
 
 ### H. Refactor Identity-Service Security Context
 
-- [ ] Chuyển `identity-service` thành OAuth2 Resource Server nếu `/api/v1/users/**` cần protected.
-- [ ] Sửa `CurrentUserFacade` để đọc principal dạng `Jwt`.
-- [ ] Đọc `publicId` từ claim `publicId`.
+- [x] Chuyển `identity-service` thành OAuth2 Resource Server nếu `/api/v1/users/**` cần protected.
+- [x] Sửa `CurrentUserFacade` để đọc principal dạng `Jwt`.
+- [x] Đọc `publicId` từ claim `publicId`.
 - [ ] Đọc `email` từ claim `email`.
 - [ ] Đọc roles từ claim `roles` hoặc Keycloak role structure.
 - [ ] Verify `/api/v1/users/me` chạy với token Keycloak.
