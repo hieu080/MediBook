@@ -129,6 +129,20 @@ Service B verify token qua Keycloak issuer/JWK.
 
 Mapper `publicId` lấy user attribute Keycloak tên `publicId` và đưa vào token claim `publicId`.
 
+Realm JSON cũng khai báo User Profile attributes `publicId` và `fullName` để Keycloak 26 cho phép lưu metadata nội bộ trên user. Các attribute này admin-edit, user-view:
+
+```text
+User Profile attribute publicId
+  view: admin, user
+  edit: admin
+
+User Profile attribute fullName
+  view: admin, user
+  edit: admin
+```
+
+`firstName` và `lastName` vẫn là field built-in của Keycloak nhưng không required trong realm này. MediBook dùng `users.full_name` làm nguồn dữ liệu chính và đồng bộ sang attribute `fullName`.
+
 MediBook hiện dùng `users.public_id` làm định danh public UUID. Khi `identity-service` register user, service cần set attribute này vào Keycloak user:
 
 ```text
