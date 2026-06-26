@@ -40,6 +40,15 @@ security:
     header-name: Authorization
     token-prefix: Bearer
 
+keycloak:
+  issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8180/realms/medibook}
+  token-uri: ${KEYCLOAK_TOKEN_URI:http://localhost:8180/realms/medibook/protocol/openid-connect/token}
+  logout-uri: ${KEYCLOAK_LOGOUT_URI:http://localhost:8180/realms/medibook/protocol/openid-connect/logout}
+  admin-base-url: ${KEYCLOAK_ADMIN_BASE_URL:http://localhost:8180}
+  realm: ${KEYCLOAK_REALM:medibook}
+  client-id: ${KEYCLOAK_CLIENT_ID:identity-service}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET:identity-service-secret}
+
 springdoc:
   api-docs:
     enabled: true

@@ -1,5 +1,8 @@
 package com.identityservice.service.impl;
 
+import com.identityservice.client.KeycloakAdminClient;
+import com.identityservice.client.KeycloakAuthClient;
+import com.identityservice.client.KeycloakTokenResponse;
 import com.identityservice.dto.request.ChangeDefaultRoleRequest;
 import com.identityservice.dto.request.LoginRequest;
 import com.identityservice.dto.request.RefreshTokenRequest;
@@ -7,28 +10,27 @@ import com.identityservice.dto.request.RegisterRequest;
 import com.identityservice.dto.response.AuthResponse;
 import com.identityservice.dto.response.JwtTokenResponse;
 import com.identityservice.dto.response.UserPrivateResponse;
-import com.identityservice.entity.RefreshToken;
+import com.identityservice.entity.ExternalIdentity;
 import com.identityservice.entity.User;
 import com.identityservice.entity.UserRole;
 import com.identityservice.enums.UserStatus;
-import com.identityservice.exception.AuthErrorCode;
 import com.identityservice.exception.IdentityException;
 import com.identityservice.exception.RoleErrorCode;
 import com.identityservice.exception.UserErrorCode;
 import com.identityservice.mapper.AuthMapper;
 import com.identityservice.mapper.UserMapper;
+import com.identityservice.repository.ExternalIdentityRepository;
 import com.identityservice.repository.UserRepository;
 import com.identityservice.repository.UserRoleRepository;
 import com.identityservice.security.CurrentUserFacade;
-import com.identityservice.security.JwtService;
 import com.identityservice.service.AuthService;
-import com.identityservice.service.RefreshTokenService;
 import com.identityservice.service.UserService;
+import com.identityservice.util.JwtClaimUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -46,9 +48,9 @@ public class AuthServiceImpl implements AuthService {
     private final UserService userService;
     private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
-    private final RefreshTokenService refreshTokenService;
+    private final ExternalIdentityRepository externalIdentityRepository;
+    private final KeycloakAuthClient keycloakAuthClient;
+    private final KeycloakAdminClient keycloakAdminClient;
     private final AuthMapper authMapper;
     private final UserMapper userMapper;
     private final CurrentUserFacade currentUserFacade;
@@ -59,41 +61,41 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByPublicIdAndDeletedAtIsNull(createdUser.getPublicId())
                 .orElseThrow(() -> new IdentityException(UserErrorCode.USER_NOT_FOUND));
         List<UserRole> userRoles = loadUserRoles(user);
+        List<String> roles = toRoleCodes(userRoles);
+        String externalSubject = keycloakAdminClient.createUser(user, request.getPassword(), roles);
+        createExternalIdentity(user, externalSubject);
         return userMapper.toPrivateResponse(user, toRoleCodes(userRoles), resolveDefaultRoleCode(userRoles));
     }
 
     @Override
     public AuthResponse login(LoginRequest request, String deviceInfo, String ipAddress) {
+        KeycloakTokenResponse token = keycloakAuthClient.login(request.getEmail(), request.getPassword());
         User user = userRepository.findByEmailAndDeletedAtIsNull(request.getEmail())
-                .orElseThrow(() -> new IdentityException(AuthErrorCode.INVALID_CREDENTIALS));
-
-        if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-            throw new IdentityException(AuthErrorCode.INVALID_CREDENTIALS);
-        }
-
+                .orElseGet(() -> findUserByExternalSubject(token.getAccessToken()));
         validateUserStatus(user);
-        return buildAuthResponse(user, loadUserRoles(user), deviceInfo, ipAddress);
+        return buildAuthResponse(user, loadUserRoles(user), token);
     }
 
     @Override
     public AuthResponse refreshToken(RefreshTokenRequest request, String deviceInfo, String ipAddress) {
-        RefreshToken storedRefreshToken = refreshTokenService.validateRefreshToken(request.getRefreshToken());
-        User user = storedRefreshToken.getUser();
+        KeycloakTokenResponse token = keycloakAuthClient.refresh(request.getRefreshToken());
+        User user = findUserByExternalSubject(token.getAccessToken());
         validateUserStatus(user);
-        refreshTokenService.revokeRefreshToken(request.getRefreshToken());
-        return buildAuthResponse(user, loadUserRoles(user), deviceInfo, ipAddress);
+        return buildAuthResponse(user, loadUserRoles(user), token);
     }
 
     @Override
     public void logout(RefreshTokenRequest request) {
-        refreshTokenService.revokeRefreshToken(request.getRefreshToken());
+        keycloakAuthClient.logout(request.getRefreshToken());
     }
 
     @Override
     public void logoutAll() {
         User user = userRepository.findByIdAndDeletedAtIsNull(currentUserFacade.getCurrentUserId())
                 .orElseThrow(() -> new IdentityException(UserErrorCode.USER_NOT_FOUND));
-        refreshTokenService.revokeAllByUser(user);
+        ExternalIdentity externalIdentity = externalIdentityRepository.findByProviderAndUser("KEYCLOAK", user)
+                .orElseThrow(() -> new IdentityException(UserErrorCode.USER_NOT_FOUND));
+        keycloakAdminClient.logoutUserSessions(externalIdentity.getExternalSubject());
     }
 
     @Override
@@ -115,21 +117,37 @@ public class AuthServiceImpl implements AuthService {
         return userMapper.toPrivateResponse(user, toRoleCodes(updatedUserRoles), resolveDefaultRoleCode(updatedUserRoles));
     }
 
-    private AuthResponse buildAuthResponse(User user, List<UserRole> userRoles, String deviceInfo, String ipAddress) {
-        String refreshToken = refreshTokenService.createRefreshToken(user, deviceInfo, ipAddress);
-        return buildAuthResponse(user, userRoles, refreshToken);
-    }
-
-    private AuthResponse buildAuthResponse(User user, List<UserRole> userRoles, String refreshToken) {
+    private AuthResponse buildAuthResponse(User user, List<UserRole> userRoles, KeycloakTokenResponse token) {
         List<String> roles = toRoleCodes(userRoles);
         String defaultRole = resolveDefaultRoleCode(userRoles);
-        String accessToken = jwtService.generateAccessToken(user, roles);
         JwtTokenResponse jwtTokenResponse = authMapper.toJWTTokenResponse(
-                accessToken,
-                refreshToken,
-                jwtService.getAccessTokenExpiration()
+                token.getAccessToken(),
+                token.getRefreshToken(),
+                token.getExpiresIn()
         );
         return authMapper.toAuthResponse(userMapper.toPrivateResponse(user, roles, defaultRole), jwtTokenResponse);
+    }
+
+    private User findUserByExternalSubject(String accessToken) {
+        String subject = JwtClaimUtils.stringClaim(accessToken, "sub");
+        return externalIdentityRepository.findByProviderAndExternalSubject("KEYCLOAK", subject)
+                .map(ExternalIdentity::getUser)
+                .orElseThrow(() -> new IdentityException(UserErrorCode.USER_NOT_FOUND));
+    }
+
+    private void createExternalIdentity(User user, String externalSubject) {
+        LocalDateTime now = LocalDateTime.now();
+        ExternalIdentity externalIdentity = ExternalIdentity.builder()
+                .provider("KEYCLOAK")
+                .externalSubject(externalSubject)
+                .user(user)
+                .username(user.getEmail())
+                .email(user.getEmail())
+                .status("ACTIVE")
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
+        externalIdentityRepository.save(externalIdentity);
     }
 
     private List<UserRole> loadUserRoles(User user) {

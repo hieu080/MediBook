@@ -107,6 +107,18 @@
       ]
     }
   },
+  "users": [
+    {
+      "username": "service-account-identity-service",
+      "enabled": true,
+      "serviceAccountClientId": "identity-service",
+      "clientRoles": {
+        "realm-management": [
+          "manage-users"
+        ]
+      }
+    }
+  ],
   "clients": [
     {
       "clientId": "identity-service",
