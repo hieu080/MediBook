@@ -520,15 +520,23 @@ Việc cần làm khi service có protected API hoặc internal API:
 
 ### J. Chuẩn Bị Service-To-Service
 
-- [ ] Chốt convention `/internal/**`.
-- [ ] Tạo client roles/scopes cho target services trong Keycloak.
-- [ ] Cấu hình service clients dạng confidential.
-- [ ] Bật service account cho service clients cần gọi nội bộ.
+- [x] Chốt convention `/internal/**`.
+- [x] Tạo client roles/scopes cho target services trong Keycloak.
+- [x] Cấu hình service clients dạng confidential.
+- [x] Bật service account cho service clients cần gọi nội bộ.
 - [ ] Cấp role/scope phù hợp cho service accounts.
-- [ ] Tạo helper lấy client_credentials token nếu bắt đầu implement internal calls.
-- [ ] Cache service token theo audience/scope đến gần hết hạn.
-- [ ] Service receiver verify issuer-uri Keycloak.
+- [x] Tạo helper lấy client_credentials token nếu bắt đầu implement internal calls.
+- [x] Cache service token theo audience/scope đến gần hết hạn.
+- [x] Service receiver verify issuer-uri Keycloak.
 - [ ] Service receiver check client/audience/scope/client role cho `/internal/**`.
+
+Convention `/internal/**`:
+
+- API nội bộ giữa service dùng path prefix `/internal/**`.
+- Gateway không route public traffic tới `/internal/**`.
+- Caller lấy token bằng `client_credentials` từ Keycloak với client id/secret của service caller.
+- Receiver verify issuer Keycloak và check client role/scope phù hợp trước khi xử lý.
+- Helper dùng chung nằm trong `share-kernel`: `ClientCredentialsServiceTokenProvider`.
 
 ### K. Hardening Login UI Riêng
 
