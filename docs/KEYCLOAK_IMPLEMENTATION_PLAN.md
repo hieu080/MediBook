@@ -553,23 +553,30 @@ Convention `/internal/**`:
 
 ### L. Verification
 
-- [ ] `docker compose up -d postgres-keycloak keycloak` thành công.
-- [ ] Keycloak admin mở được ở `http://localhost:8180`.
-- [ ] Realm `medibook` tồn tại.
-- [ ] Client `identity-service` tồn tại.
+- [x] `docker compose up -d postgres-keycloak keycloak` thành công.
+- [x] Keycloak admin mở được ở `http://localhost:8180`.
+- [x] Realm `medibook` tồn tại.
+- [x] Client `identity-service` tồn tại.
 - [ ] `docker compose up --build -d` thành công.
-- [ ] `POST /api/v1/auth/register` tạo user Keycloak + user DB + external identity.
-- [ ] `POST /api/v1/auth/login` trả token Keycloak.
-- [ ] Access token có issuer Keycloak realm `medibook`.
-- [ ] Access token có claim `publicId`.
-- [ ] Access token có claim `roles`.
-- [ ] Gateway reject request không token.
-- [ ] Gateway accept request có token Keycloak hợp lệ.
-- [ ] `GET /api/v1/users/me` hoạt động.
+- [x] `POST /api/v1/auth/register` tạo user Keycloak + user DB + external identity.
+- [x] `POST /api/v1/auth/login` trả token Keycloak.
+- [x] Access token có issuer Keycloak realm `medibook`.
+- [x] Access token có claim `publicId`.
+- [x] Access token có claim `roles`.
+- [x] Gateway reject request không token.
+- [x] Gateway accept request có token Keycloak hợp lệ.
+- [x] `GET /api/v1/users/me` hoạt động.
 - [ ] Protected patient API hoạt động.
-- [ ] `POST /api/v1/auth/refresh` trả token mới.
-- [ ] `POST /api/v1/auth/logout` revoke refresh token.
-- [ ] Build toàn bộ: `mvn -q -DskipTests package`.
+- [x] `POST /api/v1/auth/refresh` trả token mới.
+- [x] `POST /api/v1/auth/logout` revoke refresh token.
+- [x] Build toàn bộ: `mvn -q -DskipTests package`.
+
+Ghi chú verification:
+
+- `docker compose config` đã pass.
+- `npm run build` cho `MediBook-Web` đã pass.
+- Protected patient API chưa verify được vì `patient-service` hiện chưa có controller endpoint nghiệp vụ.
+- Runtime `identity-service` cần chạy build mới nhất để user đăng ký mới tự set `appRoles`; live Keycloak users hiện có đã được backfill `appRoles` từ DB nội bộ.
 
 ## 11. Rủi Ro Và Lưu Ý
 
