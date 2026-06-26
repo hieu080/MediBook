@@ -173,7 +173,7 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:26.0.7
     container_name: medibook-keycloak
-    command: start-dev
+    command: start-dev --import-realm
     environment:
       KC_DB: postgres
       KC_DB_URL_HOST: postgres-keycloak
@@ -187,6 +187,8 @@ services:
       - postgres-keycloak
     ports:
       - "8180:8080"
+    volumes:
+      - ./keycloak/realm:/opt/keycloak/data/import
 
   api-gateway:
     build: ./api-gateway
