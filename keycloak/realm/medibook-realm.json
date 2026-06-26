@@ -1,0 +1,327 @@
+{
+  "realm": "medibook",
+  "enabled": true,
+  "displayName": "MediBook",
+  "accessTokenLifespan": 1800,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "bruteForceProtected": true,
+  "failureFactor": 5,
+  "roles": {
+    "realm": [
+      {
+        "name": "PATIENT",
+        "description": "Patient user"
+      },
+      {
+        "name": "RECEPTIONIST",
+        "description": "Receptionist user"
+      },
+      {
+        "name": "DOCTOR",
+        "description": "Doctor user"
+      },
+      {
+        "name": "ADMIN",
+        "description": "Administrator"
+      }
+    ],
+    "client": {
+      "patient-service": [
+        {
+          "name": "patient:read",
+          "description": "Allow reading patient data"
+        },
+        {
+          "name": "patient:write",
+          "description": "Allow writing patient data"
+        }
+      ],
+      "doctor-schedule-service": [
+        {
+          "name": "doctor-schedule:read",
+          "description": "Allow reading doctor schedule data"
+        },
+        {
+          "name": "doctor-schedule:write",
+          "description": "Allow writing doctor schedule data"
+        }
+      ],
+      "appointment-service": [
+        {
+          "name": "appointment:read",
+          "description": "Allow reading appointment data"
+        },
+        {
+          "name": "appointment:write",
+          "description": "Allow writing appointment data"
+        }
+      ],
+      "payment-service": [
+        {
+          "name": "payment:read",
+          "description": "Allow reading payment data"
+        },
+        {
+          "name": "payment:write",
+          "description": "Allow writing payment data"
+        }
+      ],
+      "queue-service": [
+        {
+          "name": "queue:read",
+          "description": "Allow reading queue data"
+        },
+        {
+          "name": "queue:write",
+          "description": "Allow writing queue data"
+        }
+      ],
+      "notification-service": [
+        {
+          "name": "notification:send",
+          "description": "Allow sending notifications"
+        }
+      ],
+      "reporting-service": [
+        {
+          "name": "reporting:read",
+          "description": "Allow reading reports"
+        }
+      ],
+      "audit-service": [
+        {
+          "name": "audit:write",
+          "description": "Allow writing audit events"
+        }
+      ],
+      "identity-service": [
+        {
+          "name": "identity:user:read",
+          "description": "Allow reading identity user context"
+        },
+        {
+          "name": "identity:user:write",
+          "description": "Allow writing identity user data"
+        }
+      ]
+    }
+  },
+  "clients": [
+    {
+      "clientId": "identity-service",
+      "name": "Identity Service Auth Facade",
+      "description": "Backend auth facade used by MediBook custom login UI",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "identity-service-secret",
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": false,
+      "fullScopeAllowed": true,
+      "redirectUris": [],
+      "webOrigins": [],
+      "protocolMappers": [
+        {
+          "name": "publicId",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "publicId",
+            "claim.name": "publicId",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "multivalued": "false"
+          }
+        },
+        {
+          "name": "realm roles as roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "access.token.claim": "true",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "medibook-web",
+      "name": "MediBook Web",
+      "description": "Public frontend client reserved for Authorization Code + PKCE flow",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:*/*"
+      ],
+      "webOrigins": [
+        "*"
+      ],
+      "protocolMappers": [
+        {
+          "name": "publicId",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "publicId",
+            "claim.name": "publicId",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "multivalued": "false"
+          }
+        },
+        {
+          "name": "realm roles as roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "access.token.claim": "true",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "api-gateway",
+      "name": "API Gateway",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "api-gateway-secret",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "fullScopeAllowed": true
+    },
+    {
+      "clientId": "patient-service",
+      "name": "Patient Service",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "patient-service-secret",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "fullScopeAllowed": true
+    },
+    {
+      "clientId": "doctor-schedule-service",
+      "name": "Doctor Schedule Service",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "doctor-schedule-service-secret",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "fullScopeAllowed": true
+    },
+    {
+      "clientId": "appointment-service",
+      "name": "Appointment Service",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "appointment-service-secret",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "fullScopeAllowed": true
+    },
+    {
+      "clientId": "payment-service",
+      "name": "Payment Service",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "payment-service-secret",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "fullScopeAllowed": true
+    },
+    {
+      "clientId": "queue-service",
+      "name": "Queue Service",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "queue-service-secret",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "fullScopeAllowed": true
+    },
+    {
+      "clientId": "notification-service",
+      "name": "Notification Service",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "notification-service-secret",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "fullScopeAllowed": true
+    },
+    {
+      "clientId": "reporting-service",
+      "name": "Reporting Service",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "reporting-service-secret",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "fullScopeAllowed": true
+    },
+    {
+      "clientId": "audit-service",
+      "name": "Audit Service",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "audit-service-secret",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "fullScopeAllowed": true
+    }
+  ]
+}
