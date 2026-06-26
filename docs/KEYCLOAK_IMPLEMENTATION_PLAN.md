@@ -472,21 +472,21 @@ Việc cần làm khi service có protected API hoặc internal API:
 
 ### F. Refactor Identity-Service Auth Facade
 
-- [ ] Thêm `KeycloakProperties`.
-- [ ] Thêm DTO mapping response Keycloak token.
-- [ ] Thêm `KeycloakAuthClient`.
-- [ ] Implement login bằng Keycloak password grant.
-- [ ] Implement refresh bằng Keycloak refresh token grant.
-- [ ] Implement logout bằng Keycloak logout endpoint.
-- [ ] Thêm `ExternalIdentity` entity.
-- [ ] Thêm `ExternalIdentityRepository`.
-- [ ] Implement register tạo user trong Keycloak.
-- [ ] Implement register tạo user profile trong DB nội bộ.
-- [ ] Set Keycloak user attribute `publicId`.
-- [ ] Tạo external identity mapping sau khi register.
-- [ ] Assign role nội bộ `PATIENT`.
-- [ ] Assign role Keycloak `PATIENT` nếu token cần claim roles.
-- [ ] Giữ response format `AuthResponse/JwtTokenResponse` để không phá FE.
+- [x] Thêm `KeycloakProperties`.
+- [x] Thêm DTO mapping response Keycloak token.
+- [x] Thêm `KeycloakAuthClient`.
+- [x] Implement login bằng Keycloak password grant.
+- [x] Implement refresh bằng Keycloak refresh token grant.
+- [x] Implement logout bằng Keycloak logout endpoint.
+- [x] Thêm `ExternalIdentity` entity.
+- [x] Thêm `ExternalIdentityRepository`.
+- [x] Implement register tạo user trong Keycloak.
+- [x] Implement register tạo user profile trong DB nội bộ.
+- [x] Set Keycloak user attribute `publicId`.
+- [x] Tạo external identity mapping sau khi register.
+- [x] Assign role nội bộ `PATIENT`.
+- [x] Assign role Keycloak `PATIENT` nếu token cần claim roles.
+- [x] Giữ response format `AuthResponse/JwtTokenResponse` để không phá FE.
 
 ### G. Bỏ JWT Tự Triển Khai Trong Identity-Service
 
