@@ -439,36 +439,36 @@ Việc cần làm khi service có protected API hoặc internal API:
 
 ### C. Cập Nhật Cấu Hình Docker/Env
 
-- [ ] Thêm `KEYCLOAK_ISSUER_URI` cho `api-gateway`.
-- [ ] Thêm `KEYCLOAK_ISSUER_URI` cho `identity-service`.
-- [ ] Thêm `KEYCLOAK_TOKEN_URI` cho `identity-service`.
-- [ ] Thêm `KEYCLOAK_LOGOUT_URI` cho `identity-service`.
-- [ ] Thêm `KEYCLOAK_ADMIN_BASE_URL` cho `identity-service`.
-- [ ] Thêm `KEYCLOAK_REALM=medibook` cho `identity-service`.
-- [ ] Thêm `KEYCLOAK_CLIENT_ID=identity-service` cho `identity-service`.
-- [ ] Thêm `KEYCLOAK_CLIENT_SECRET` cho `identity-service`.
-- [ ] Thêm `KEYCLOAK_ISSUER_URI` cho `patient-service`.
+- [x] Thêm `KEYCLOAK_ISSUER_URI` cho `api-gateway`.
+- [x] Thêm `KEYCLOAK_ISSUER_URI` cho `identity-service`.
+- [x] Thêm `KEYCLOAK_TOKEN_URI` cho `identity-service`.
+- [x] Thêm `KEYCLOAK_LOGOUT_URI` cho `identity-service`.
+- [x] Thêm `KEYCLOAK_ADMIN_BASE_URL` cho `identity-service`.
+- [x] Thêm `KEYCLOAK_REALM=medibook` cho `identity-service`.
+- [x] Thêm `KEYCLOAK_CLIENT_ID=identity-service` cho `identity-service`.
+- [x] Thêm `KEYCLOAK_CLIENT_SECRET` cho `identity-service`.
+- [x] Thêm `KEYCLOAK_ISSUER_URI` cho `patient-service`.
 - [ ] Bỏ env `JWT_*` khỏi `identity-service` nếu không còn dùng.
 - [ ] Bỏ volume `./identity-service/keys` nếu identity không tự ký JWT nữa.
 
 ### D. Refactor Gateway
 
-- [ ] Đổi `api-gateway/src/main/resources/application.yaml` từ `jwk-set-uri` nội bộ sang `issuer-uri` Keycloak.
-- [ ] Cập nhật `application-local.yaml` nếu có cấu hình riêng.
-- [ ] Bỏ public matcher `/api/v1/auth/.well-known/jwks.json`.
-- [ ] Giữ public matcher cho login/register/refresh/logout.
+- [x] Đổi `api-gateway/src/main/resources/application.yaml` từ `jwk-set-uri` nội bộ sang `issuer-uri` Keycloak.
+- [x] Cập nhật `application-local.yaml` nếu có cấu hình riêng.
+- [x] Bỏ public matcher `/api/v1/auth/.well-known/jwks.json`.
+- [x] Giữ public matcher cho login/register/refresh/logout.
 - [ ] Verify gateway reject request không token.
 - [ ] Verify gateway accept token Keycloak hợp lệ.
 
 ### E. Migration Identity DB
 
-- [ ] Tạo migration `V4__add_external_identities_for_keycloak.sql`.
-- [ ] Tạo bảng `external_identities`.
-- [ ] Tạo unique index `(provider, external_subject)`.
-- [ ] Tạo unique index `(provider, user_id)`.
-- [ ] Tạo FK `external_identities.user_id -> users.id`.
-- [ ] Cho phép `users.password_hash` nullable nếu password chuyển hẳn sang Keycloak.
-- [ ] Đánh dấu `refresh_tokens` là legacy hoặc dừng sử dụng trong code.
+- [x] Tạo migration `V4__add_external_identities_for_keycloak.sql`.
+- [x] Tạo bảng `external_identities`.
+- [x] Tạo unique index `(provider, external_subject)`.
+- [x] Tạo unique index `(provider, user_id)`.
+- [x] Tạo FK `external_identities.user_id -> users.id`.
+- [x] Cho phép `users.password_hash` nullable nếu password chuyển hẳn sang Keycloak.
+- [x] Đánh dấu `refresh_tokens` là legacy hoặc dừng sử dụng trong code.
 
 ### F. Refactor Identity-Service Auth Facade
 
