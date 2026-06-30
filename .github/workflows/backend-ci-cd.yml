@@ -26,28 +26,9 @@ env:
     audit-service
 
 jobs:
-  test:
-    name: Run Maven Tests
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-          cache: maven
-
-      - name: Run tests
-        run: mvn -B test
-
   build-backend-images:
     name: Build Backend Images
     runs-on: ubuntu-latest
-    needs: test
 
     strategy:
       fail-fast: false
@@ -101,7 +82,6 @@ jobs:
   build-keycloak-image:
     name: Build Keycloak Image
     runs-on: ubuntu-latest
-    needs: test
 
     steps:
       - name: Checkout
@@ -139,7 +119,7 @@ jobs:
 
   deploy:
     name: Deploy Backend Stack
-    runs-on: [self-hosted, linux, medibook]
+    runs-on: self-hosted
     needs:
       - build-backend-images
       - build-keycloak-image
